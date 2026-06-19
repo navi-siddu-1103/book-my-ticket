@@ -1,35 +1,42 @@
 server:
-  port: 80
+  port: ${PORT:8080}
+
 spring:
   application:
     name: book-my-ticket
+
   datasource:
-    url: jdbc:mysql://localhost:3306/book-my-ticket?createDatabaseIfNotExist=true
-    username: root
-    password: Naveen@1103
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/book-my-ticket?createDatabaseIfNotExist=true}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:Naveen@1103}
+
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
-        '[format_sql]': true
+        '[format_sql]': false
+
   data:
     redis:
-      url: redis://localhost:6379
+      url: ${SPRING_REDIS_URL:redis://localhost:6379}
+
   mail:
     host: smtp.gmail.com
     port: 587
-    username: smsiddu2266@gmail.com
-    password: ${APP_PASSWORD}
+    username: ${MAIL_USERNAME:smsiddu2266@gmail.com}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+
 admin:
-  email: admin@gmail.com
-  password: admin
+  email: ${ADMIN_EMAIL:admin@gmail.com}
+  password: ${ADMIN_PASSWORD:admin}
+
 cloudinary:
   url: ${CLOUDINARY_URL}
