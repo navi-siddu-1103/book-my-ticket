@@ -176,9 +176,9 @@ body {
 footer {
 	border-top: 1px solid var(--border);
 	text-align: center;
-	padding: 25px;
+	padding: 15px;
 	color: var(--text-muted);
-	margin-top: 80px;
+	margin-top: 200px;
 }
 
 /* ===== TOASTS ===== */
@@ -219,8 +219,7 @@ footer {
 	font-weight: 700;
 }
 
-@
-keyframes slideIn {
+@keyframes slideIn {
 	from {transform: translateX(400px);
 	opacity: 0
 }
@@ -230,6 +229,13 @@ to {
 	opacity: 1
 }
 
+}
+
+@keyframes slideOut {
+	to {
+		transform: translateX(400px);
+		opacity: 0;
+	}
 }
 @media ( max-width :768px) {
 	.hero h1 {
@@ -280,11 +286,13 @@ to {
 
 	<!-- TOASTS -->
 	<div class="toastify-container">
-		<div th:if="${pass}" class="toastify success">
+		<div th:if="${pass}" class="toastify success" id="toast-pass">
 			<span th:text="${pass}"></span>
+			<button class="toastify-close" onclick="this.parentElement.remove()">✕</button>
 		</div>
-		<div th:if="${fail}" class="toastify error">
+		<div th:if="${fail}" class="toastify error" id="toast-fail">
 			<span th:text="${fail}"></span>
+			<button class="toastify-close" onclick="this.parentElement.remove()">✕</button>
 		</div>
 	</div>
 
@@ -292,17 +300,19 @@ to {
 	<section class="hero">
 		<h1>Book Your Favorite Movies</h1>
 		<p>Fast • Secure • Premium Experience</p>
-		<a th:href="${session.user == null} ? '/login' : '#movies'" class="btn">Browse Movies</a>
+		<a th:href="${session.user == null} ? '/login' : 'javascript:void(0)'"
+		   th:onclick="${session.user != null} ? 'showMovies()' : ''"
+		   class="btn">Browse Movies</a>
 	</section>
 
 	<!-- MOVIES -->
-	<section class="container" id="movies" th:if="${!movies.isEmpty()}">
+	<section class="container" id="movies" style="display: none;">
 		<h2>Now Showing</h2>
 
-		<div class="row g-4">
+		<div class="row g-4" th:if="${!movies.isEmpty()}">
 			<div class="col-lg-3 col-md-4 col-sm-6" th:each="movie:${movies}">
 				<div class="movie-card">
-					<img th:src="${movie.imageLink}">
+					<img th:src="${movie.imageLink}" class="w-100">
 					<div class="card-body">
 						<h5 th:text="${movie.name}"></h5>
 						<p class="text-muted">
@@ -315,6 +325,13 @@ to {
 				</div>
 			</div>
 		</div>
+
+		<!-- Empty State -->
+		<div th:if="${movies.isEmpty()}" style="text-align:center; padding:60px 20px;">
+			<div style="font-size:4rem;">🎬</div>
+			<h3 style="font-weight:700; margin-top:16px;">No Movies Available</h3>
+			<p style="color:var(--text-muted);">Check back soon — new movies are added regularly!</p>
+		</div>
 	</section>
 
 	<footer>
@@ -323,5 +340,22 @@ to {
 
 	<script
 		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+	<script>
+	// Auto-dismiss toasts after 3 seconds
+	document.querySelectorAll('.toastify').forEach(function(toast) {
+		setTimeout(function() {
+			toast.style.animation = 'slideOut .4s ease forwards';
+			setTimeout(function() { toast.remove(); }, 400);
+		}, 3000);
+	});
+
+	// Reveal movies section when clicking Browse Movies
+	function showMovies() {
+		const moviesSection = document.getElementById('movies');
+		moviesSection.style.display = 'block';
+		moviesSection.scrollIntoView({ behavior: 'smooth' });
+	}
+	</script>
 </body>
 </html>
