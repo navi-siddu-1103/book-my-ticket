@@ -37,6 +37,10 @@ public class CloudinaryHelper {
 	public String saveTicketQr(byte[] qr) {
 		return upload(qr, QR_FOLDER);
 	}
+	
+	public boolean isFallbackImage(String link) {
+		return FALLBACK_IMAGE.equals(link);
+	}
 
 	/* ---------- Private helpers ---------- */
 
