@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.cloudinary.Cloudinary;
@@ -22,7 +23,7 @@ public class CloudinaryHelper {
 	private final Cloudinary cloudinary;
 
 	public CloudinaryHelper(@Value("${cloudinary.url}") String cloudinaryUrl) {
-		this.cloudinary = new Cloudinary(cloudinaryUrl);
+		this.cloudinary = StringUtils.hasText(cloudinaryUrl) ? new Cloudinary(cloudinaryUrl) : null;
 	}
 
 	public String generateImageLink(MultipartFile file) {
@@ -50,9 +51,12 @@ public class CloudinaryHelper {
 	@SuppressWarnings("unchecked")
 	private String upload(byte[] data, String folder) {
 		try {
+			if (cloudinary == null) {
+				return FALLBACK_IMAGE;
+			}
 			Map<String, Object> params = ObjectUtils.asMap("folder", folder, "use_filename", true);
 			return (String) cloudinary.uploader().upload(data, params).get("url");
-		} catch (IOException e) {
+		} catch (Exception e) {
 			return FALLBACK_IMAGE;
 		}
 	}
