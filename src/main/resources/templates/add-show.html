@@ -142,6 +142,23 @@ to {
 }
 
 }
+.back-link {
+	text-align: center;
+	margin-top: 18px;
+}
+
+.back-link a {
+	color: var(--text-muted);
+	text-decoration: none;
+	font-size: 0.9rem;
+	font-weight: 600;
+	transition: color 0.2s ease;
+}
+
+.back-link a:hover {
+	color: var(--accent);
+}
+
 @media ( max-width : 480px) {
 	.form-card {
 		padding: 30px 25px;
@@ -190,6 +207,10 @@ to {
 				</div>
 
 				<button type="submit" class="btn-submit">Add Show</button>
+
+				<div class="back-link">
+					<a th:href="'/manage-shows/' + *{screenId}">← Back to Shows</a>
+				</div>
 
 			</form>
 

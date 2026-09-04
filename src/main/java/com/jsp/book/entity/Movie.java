@@ -40,7 +40,7 @@ public class Movie {
 	@Column(nullable = false)
 	private String trailerLink;
 
-	@Column(nullable = false, length = 500)
+	@Column(nullable = false, columnDefinition = "TEXT")
 	private String description;
 
 	@Column(nullable = false)

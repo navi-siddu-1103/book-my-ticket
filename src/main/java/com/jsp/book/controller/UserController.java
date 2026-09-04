@@ -216,6 +216,11 @@ public class UserController {
 
 	/* ---------- Movie ---------- */
 
+	@GetMapping("/admin-dashboard")
+	public String adminDashboard() {
+		return "redirect:/manage-movies";
+	}
+
 	@GetMapping("/manage-movies")
 	public String manageMovies(HttpSession session, RedirectAttributes attributes, ModelMap model) {
 		return userService.manageMovies(session, attributes, model);
