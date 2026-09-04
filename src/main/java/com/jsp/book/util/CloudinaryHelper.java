@@ -54,8 +54,18 @@ public class CloudinaryHelper {
 			if (cloudinary == null) {
 				return FALLBACK_IMAGE;
 			}
-			Map<String, Object> params = ObjectUtils.asMap("folder", folder, "use_filename", true);
-			return (String) cloudinary.uploader().upload(data, params).get("url");
+			Map<String, Object> params = ObjectUtils.asMap("folder", folder, "use_filename", true, "unique_filename", true,
+					"resource_type", "auto");
+			Map<String, Object> uploadResult = cloudinary.uploader().upload(data, params);
+			Object secureUrl = uploadResult.get("secure_url");
+			if (secureUrl instanceof String secureUrlString && StringUtils.hasText(secureUrlString)) {
+				return secureUrlString;
+			}
+			Object url = uploadResult.get("url");
+			if (url instanceof String urlString && StringUtils.hasText(urlString)) {
+				return urlString;
+			}
+			return FALLBACK_IMAGE;
 		} catch (Exception e) {
 			return FALLBACK_IMAGE;
 		}
