@@ -322,6 +322,12 @@ to {
 						th:field="*{image}" accept="image/*"> <span
 						class="error-text" th:errors="*{image}"></span>
 				</div>
+				
+				<div class="form-group">
+					<label>Poster URL (optional)</label> <input class="form-control"
+						th:field="*{imageUrl}" placeholder="https://example.com/poster.jpg">
+					<span class="error-text" th:errors="*{imageUrl}"></span>
+				</div>
 
 				<div class="form-group">
 					<label>Trailer Link</label> <input class="form-control"
