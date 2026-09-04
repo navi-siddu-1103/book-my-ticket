@@ -1,7 +1,6 @@
 package com.jsp.book.service;
 
 import java.io.IOException;
-import java.net.URI;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -16,7 +15,6 @@ import java.util.stream.Collectors;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -877,35 +875,17 @@ public class UserServiceImpl implements UserService {
 
 		// Image validation
 		MultipartFile image = movieDto.getImage();
-		String imageUrl = movieDto.getImageUrl() != null ? movieDto.getImageUrl().trim() : null;
 		boolean hasImageFile = image != null && !image.isEmpty();
-		boolean hasImageUrl = StringUtils.hasText(imageUrl);
 
-		if (!hasImageFile && !hasImageUrl) {
+		if (!hasImageFile) {
 			result.rejectValue("image", "error.image", "* Image is Required");
-		}
-		if (hasImageUrl && !isValidHttpUrl(imageUrl)) {
-			result.rejectValue("imageUrl", "error.imageUrl", "* Enter a valid image URL");
 		}
 
 		if (result.hasErrors()) {
 			return "add-movie.html";
 		}
 		
-		String imageLink;
-		if (hasImageFile) {
-			imageLink = cloudinaryHelper.generateImageLink(image);
-			if (cloudinaryHelper.isFallbackImage(imageLink)) {
-				if (hasImageUrl) {
-					imageLink = imageUrl;
-				} else {
-					result.rejectValue("image", "error.image", "* Image upload failed, try another file or add image URL");
-					return "add-movie.html";
-				}
-			}
-		} else {
-			imageLink = imageUrl;
-		}
+		String imageLink = cloudinaryHelper.generateImageLink(image);
 
 		Movie movie = new Movie(null, movieDto.getName(), movieDto.getLanguages(), movieDto.getGenre(),
 				movieDto.getDuration(), imageLink,
@@ -917,17 +897,6 @@ public class UserServiceImpl implements UserService {
 		return "redirect:/manage-movies";
 	}
 	
-	private boolean isValidHttpUrl(String value) {
-		try {
-			URI uri = URI.create(value);
-			String scheme = uri.getScheme();
-			return ("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme))
-					&& StringUtils.hasText(uri.getHost());
-		} catch (Exception ex) {
-			return false;
-		}
-	}
-
 	@Override
 	public String manageShows(Long id, ModelMap map, RedirectAttributes attributes, HttpSession session) {
 

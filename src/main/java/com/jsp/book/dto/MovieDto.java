@@ -26,8 +26,6 @@ public class MovieDto {
 
 	private MultipartFile image;
 
-	private String imageUrl;
-
 	@NotBlank(message = "* It is Required")
 	private String trailerLink;
 
