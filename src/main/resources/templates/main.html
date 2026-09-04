@@ -259,18 +259,22 @@ footer {
 	top: 20px;
 	right: 20px;
 	z-index: 9999;
+	max-width: 300px;
 }
 
 .toastify {
-	min-width: 300px;
-	padding: 14px 18px;
+	width: auto;
+	max-width: 300px;
+	padding: 12px 16px;
 	border-radius: 12px;
 	display: flex;
-	gap: 12px;
+	gap: 10px;
 	color: #fff;
 	font-weight: 600;
+	font-size: 0.9rem;
 	box-shadow: 0 20px 45px rgba(0, 0, 0, .7);
 	animation: slideIn .4s ease;
+	align-items: center;
 }
 
 .toastify.success {
@@ -284,11 +288,13 @@ footer {
 .toastify-close {
 	background: rgba(255, 255, 255, .25);
 	border: none;
-	width: 26px;
-	height: 26px;
+	width: 22px;
+	height: 22px;
 	border-radius: 50%;
 	color: #fff;
 	font-weight: 700;
+	flex-shrink: 0;
+	cursor: pointer;
 }
 
 @keyframes slideIn {
@@ -309,12 +315,67 @@ to {
 		opacity: 0;
 	}
 }
-@media ( max-width :768px) {
+/* ===== ADMIN BUTTON COLORS ===== */
+.btn-admin-movie {
+	background: linear-gradient(135deg, #7c3aed, #9f67fa);
+	color: #fff;
+	border: none;
+}
+.btn-admin-movie:hover { background: #6d28d9; color: #fff; }
+
+.btn-admin-theater {
+	background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+	color: #fff;
+	border: none;
+}
+.btn-admin-theater:hover { background: #0284c7; color: #fff; }
+
+.btn-admin-users {
+	background: linear-gradient(135deg, #f59e0b, #fbbf24);
+	color: #fff;
+	border: none;
+}
+.btn-admin-users:hover { background: #d97706; color: #fff; }
+
+.btn-logout {
+	background: linear-gradient(135deg, #6496ff, #ff4081);
+	color: #fff;
+	border: none;
+}
+.btn-logout:hover { opacity: 0.88; color: #fff; }
+
+@media (max-width: 992px) {
+	.navbar .d-flex {
+		flex-wrap: wrap;
+		gap: 8px;
+		margin-top: 10px;
+	}
+}
+
+@media (max-width: 768px) {
 	.hero h1 {
-		font-size: 2.2rem
+		font-size: 1.9rem;
+	}
+	.hero p {
+		font-size: 1rem;
 	}
 	.movie-card img {
-		height: 230px
+		height: 220px;
+	}
+	.toastify-container {
+		right: 10px;
+		left: 10px;
+		max-width: calc(100vw - 20px);
+	}
+	.toastify {
+		max-width: 100%;
+	}
+	#movies {
+		padding: 40px 0;
+	}
+	#movies h2 {
+		font-size: 1.5rem;
+		margin-bottom: 30px;
 	}
 }
 </style>
@@ -339,19 +400,19 @@ to {
 			</div>
 
 			<div th:if="${session.user != null}"
-				class="d-flex align-items-center">
-				<span class="me-3 fw-semibold"
-					th:text="'Hello, ' + ${session.user.name}"></span> <a
-					th:if="${session.user.role=='USER'}" href="/bookings"
-					class="btn btn-outline-light me-2">My Bookings</a> <a
-					th:if="${session.user.role=='ADMIN'}" href="/manage-movies"
-					class="btn btn-danger me-2">Manage Movies</a> <a
-					th:if="${session.user.role=='ADMIN'}" href="/manage-theaters"
-					class="btn btn-danger me-2">Manage Theaters</a> <a
-					th:if="${session.user.role=='ADMIN'}" href="/manage-users"
-					class="btn btn-danger me-2">Manage Users</a> <a href="/logout"
-					class="btn btn-primary">Logout</a>
-			</div>
+			class="d-flex align-items-center flex-wrap gap-2">
+			<span class="fw-semibold"
+				th:text="'Hello, ' + ${session.user.name}"></span>
+			<a th:if="${session.user.role=='USER'}" href="/bookings"
+				class="btn btn-outline-light btn-sm">My Bookings</a>
+			<a th:if="${session.user.role=='ADMIN'}" href="/manage-movies"
+				class="btn btn-admin-movie btn-sm">Manage Movies</a>
+			<a th:if="${session.user.role=='ADMIN'}" href="/manage-theaters"
+				class="btn btn-admin-theater btn-sm">Manage Theaters</a>
+			<a th:if="${session.user.role=='ADMIN'}" href="/manage-users"
+				class="btn btn-admin-users btn-sm">Manage Users</a>
+			<a href="/logout" class="btn btn-logout btn-sm">Logout</a>
+		</div>
 
 		</div>
 	</nav>

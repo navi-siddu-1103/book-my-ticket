@@ -1032,8 +1032,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public String loadMain(ModelMap map) {
 
-		Set<Movie> movies = showRepository.findByShowDateAfter(LocalDate.now().minusDays(1)).stream()
-				.map(Show::getMovie).collect(Collectors.toSet());
+		List<Movie> movies = movieRepository.findAll();
 
 		map.put("movies", movies);
 		return "main";
@@ -1293,6 +1292,23 @@ public class UserServiceImpl implements UserService {
 
 		map.put("ticket", ticket);
 		return "view-ticket.html";
+	}
+
+	@Override
+	public String myBookings(HttpSession session, RedirectAttributes attributes, ModelMap map) {
+
+		User loggedInUser = getUserFromSession(session);
+
+		// User authorization
+		if (loggedInUser == null || !"USER".equals(loggedInUser.getRole())) {
+			attributes.addFlashAttribute("fail", "Please login to view bookings");
+			return "redirect:/login";
+		}
+
+		List<BookedTicket> tickets = ticketRepository.findByUser(loggedInUser);
+		map.put("tickets", tickets);
+
+		return "my-bookings.html";
 	}
 
 }

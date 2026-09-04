@@ -124,4 +124,6 @@ public interface UserService {
 
 	String confirmTicket(HttpSession session, ModelMap map, RedirectAttributes attributes, String razorpay_order_id,
 			String razorpay_payment_id) throws IOException, WriterException;
+
+	String myBookings(HttpSession session, RedirectAttributes attributes, ModelMap map);
 }

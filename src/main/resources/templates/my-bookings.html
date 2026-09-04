@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Bookings | BookMyTicket</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+
+<style>
+:root {
+	--bg-main: #0f172a;
+	--bg-card: #111827;
+	--border: #1f2937;
+	--text-main: #e5e7eb;
+	--text-muted: #9ca3af;
+	--accent: #6496ff;
+	--accent-pink: #ff4081;
+}
+
+body {
+	font-family: 'Poppins', sans-serif;
+	background: radial-gradient(circle at top, #1e293b, var(--bg-main));
+	color: var(--text-main);
+	min-height: 100vh;
+}
+
+/* ===== NAVBAR ===== */
+.navbar {
+	background: rgba(17, 24, 39, .85) !important;
+	backdrop-filter: blur(14px);
+	border-bottom: 1px solid var(--border);
+	padding: .9rem 2rem;
+}
+
+.navbar-brand {
+	font-weight: 900;
+	font-size: 1.5rem;
+	background: linear-gradient(135deg, var(--accent), var(--accent-pink));
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+/* ===== HEADER ===== */
+.page-header {
+	text-align: center;
+	padding: 50px 20px 30px;
+}
+
+.page-header h1 {
+	font-weight: 900;
+	background: linear-gradient(135deg, var(--accent), var(--accent-pink));
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+/* ===== TICKET CARD ===== */
+.ticket-card {
+	background: linear-gradient(180deg, #111827, #0b1220);
+	border: 1px solid var(--border);
+	border-radius: 18px;
+	overflow: hidden;
+	box-shadow: 0 20px 45px rgba(0, 0, 0, .6);
+	transition: .4s ease;
+	margin-bottom: 24px;
+}
+
+.ticket-card:hover {
+	transform: translateY(-5px);
+	box-shadow: 0 30px 60px rgba(0, 0, 0, .8);
+	border-color: var(--accent);
+}
+
+.ticket-body {
+	padding: 24px;
+}
+
+.ticket-body h5 {
+	font-weight: 700;
+	font-size: 1.2rem;
+	margin-bottom: 14px;
+	background: linear-gradient(135deg, var(--accent), var(--accent-pink));
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+.ticket-info {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 10px;
+}
+
+.ticket-info .label {
+	color: var(--text-muted);
+	font-size: .8rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+}
+
+.ticket-info .value {
+	font-weight: 600;
+	font-size: .95rem;
+	margin-bottom: 8px;
+}
+
+.ticket-qr {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+	border-left: 1px dashed var(--border);
+}
+
+.ticket-qr img {
+	width: 130px;
+	height: 130px;
+	border-radius: 12px;
+	border: 2px solid var(--border);
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+	text-align: center;
+	padding: 80px 20px;
+}
+
+.empty-state h3 {
+	font-weight: 700;
+	margin-top: 20px;
+}
+
+.empty-state p {
+	color: var(--text-muted);
+}
+
+.btn-primary {
+	background: linear-gradient(135deg, var(--accent), var(--accent-pink));
+	border: none;
+	font-weight: 700;
+	padding: 12px 30px;
+	border-radius: 12px;
+	box-shadow: 0 12px 30px rgba(100, 150, 255, .4);
+}
+
+.btn-primary:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 18px 45px rgba(100, 150, 255, .6);
+}
+
+.btn-outline-light {
+	border: 2px solid var(--accent);
+	color: var(--accent);
+	font-weight: 700;
+}
+
+.btn-outline-light:hover {
+	background: var(--accent);
+	color: #fff;
+}
+
+footer {
+	border-top: 1px solid var(--border);
+	text-align: center;
+	padding: 25px;
+	color: var(--text-muted);
+	margin-top: 80px;
+}
+
+@media (max-width: 768px) {
+	.ticket-info {
+		grid-template-columns: 1fr;
+	}
+	.ticket-qr {
+		border-left: none;
+		border-top: 1px dashed var(--border);
+	}
+}
+</style>
+</head>
+
+<body>
+
+	<!-- NAVBAR -->
+	<nav class="navbar navbar-expand-lg">
+		<a class="navbar-brand" href="/">🎬 BookMyTicket</a>
+
+		<div class="collapse navbar-collapse justify-content-end">
+			<div th:if="${session.user != null}" class="d-flex align-items-center">
+				<span class="me-3 fw-semibold" th:text="'Hello, ' + ${session.user.name}"></span>
+				<a href="/" class="btn btn-outline-light me-2">Home</a>
+				<a href="/logout" class="btn btn-primary">Logout</a>
+			</div>
+		</div>
+	</nav>
+
+	<!-- HEADER -->
+	<div class="page-header">
+		<h1>🎟️ My Bookings</h1>
+		<p class="text-muted mt-2">All your booked tickets in one place</p>
+	</div>
+
+	<!-- BOOKINGS LIST -->
+	<div class="container">
+
+		<!-- When there are tickets -->
+		<div th:if="${!tickets.isEmpty()}">
+			<div th:each="ticket : ${tickets}" class="ticket-card">
+				<div class="d-flex flex-column flex-md-row">
+					<div class="ticket-body flex-grow-1">
+						<h5 th:text="${ticket.movieName}">Movie Name</h5>
+						<div class="ticket-info">
+							<div>
+								<div class="label">Theater</div>
+								<div class="value" th:text="${ticket.theaterName}">Theater Name</div>
+							</div>
+							<div>
+								<div class="label">Screen</div>
+								<div class="value" th:text="${ticket.screenName}">Screen 1</div>
+							</div>
+							<div>
+								<div class="label">Date</div>
+								<div class="value" th:text="${ticket.showDate}">2025-01-15</div>
+							</div>
+							<div>
+								<div class="label">Timing</div>
+								<div class="value" th:text="${ticket.showTiming}">10:00 AM</div>
+							</div>
+							<div>
+								<div class="label">Seats</div>
+								<div class="value">
+									<span th:each="seat, iter : ${ticket.seatNumber}">
+										<span th:text="${seat}">A1</span>
+										<span th:if="${!iter.last}">, </span>
+									</span>
+								</div>
+							</div>
+							<div>
+								<div class="label">Tickets</div>
+								<div class="value" th:text="${ticket.ticketCount}">2</div>
+							</div>
+							<div>
+								<div class="label">Total Price</div>
+								<div class="value" th:text="'₹ ' + ${ticket.ticketPrice}">₹ 500</div>
+							</div>
+							<div>
+								<div class="label">Payment ID</div>
+								<div class="value" style="font-size: .8rem;" th:text="${ticket.paymentId}">pay_xxx</div>
+							</div>
+						</div>
+					</div>
+					<div class="ticket-qr" th:if="${ticket.qrUrl != null}">
+						<img th:src="${ticket.qrUrl}" alt="QR Code">
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- When there are no tickets -->
+		<div th:if="${tickets.isEmpty()}" class="empty-state">
+			<div style="font-size: 4rem;">🎬</div>
+			<h3>No Bookings Yet</h3>
+			<p>You haven't booked any tickets yet. Browse movies and book your first ticket!</p>
+			<a href="/" class="btn btn-primary mt-3">Browse Movies</a>
+		</div>
+
+	</div>
+
+	<footer>
+		<p>© 2025 BookMyTicket — All Rights Reserved</p>
+	</footer>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

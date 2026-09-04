@@ -289,4 +289,9 @@ public class UserController {
 			throws IOException, WriterException {
 		return userService.confirmTicket(session, model, attributes, razorpay_order_id, razorpay_payment_id);
 	}
+
+	@GetMapping("/bookings")
+	public String myBookings(HttpSession session, RedirectAttributes attributes, ModelMap model) {
+		return userService.myBookings(session, attributes, model);
+	}
 }
