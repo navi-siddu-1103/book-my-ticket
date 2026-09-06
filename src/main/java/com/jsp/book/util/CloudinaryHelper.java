@@ -107,12 +107,13 @@ public class CloudinaryHelper {
 				extension = originalName.substring(lastDot);
 			}
 
-			Path uploadDir = Path.of("src", "main", "resources", "static", "uploads", folderName);
-			Files.createDirectories(uploadDir);
-
+			byte[] fileBytes = file.getBytes();
 			String fileName = UUID.randomUUID() + extension;
-			Path target = uploadDir.resolve(fileName);
-			Files.copy(file.getInputStream(), target);
+			Path uploadRoot = Path.of(System.getProperty("user.dir"), "uploads");
+			Path folderDir = uploadRoot.resolve(folderName);
+			Files.createDirectories(folderDir);
+			Path target = folderDir.resolve(fileName);
+			Files.write(target, fileBytes);
 
 			return "/uploads/" + folderName + "/" + fileName;
 		} catch (Exception e) {
