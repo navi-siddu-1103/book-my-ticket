@@ -271,7 +271,8 @@ body {
 					</thead>
 					<tbody>
 						<tr th:each="movie:${movies}">
-							<td><img th:src="${movie.imageLink}" class="movie-image"></td>
+							<td><img th:src="${movie.imageLink}" class="movie-image"
+								onerror="this.onerror=null;this.src='https://placehold.co/120x160/e5e7eb/64748b?text=No+Poster';"></td>
 							<td class="fw-semibold" th:text="${movie.name}"></td>
 							<td><span class="movie-genre" th:text="${movie.genre}"></span></td>
 							<td th:text="${movie.duration}"></td>
