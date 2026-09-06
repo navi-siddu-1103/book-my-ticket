@@ -2,7 +2,7 @@ package com.jsp.book.util;
 
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class EmailHelper {
 
-	private static final String FROM_EMAIL = "bookmy-ticket.com";
 	private static final String FROM_NAME = "Book-My-Ticket";
 	private static final String SUBJECT = "Otp for Creating Account with BookMyTicket";
 	private static final String TEMPLATE = "email-template.html";
@@ -22,14 +21,16 @@ public class EmailHelper {
 	private final JavaMailSender mailSender;
 	private final TemplateEngine templateEngine;
 
-	@Async
-	public void sendOtp(int otp, String name, String email) {
+	@Value("${spring.mail.username}")
+	private String fromEmail;
+
+	public boolean sendOtp(int otp, String name, String email) {
 
 		try {
 			MimeMessage message = mailSender.createMimeMessage();
 			MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
-			helper.setFrom(FROM_EMAIL, FROM_NAME);
+			helper.setFrom(fromEmail, FROM_NAME);
 			helper.setTo(email);
 			helper.setSubject(SUBJECT);
 
@@ -41,9 +42,11 @@ public class EmailHelper {
 			helper.setText(body, true);
 
 			mailSender.send(message);
+			return true;
 
 		} catch (Exception ex) {
-			System.err.println("Failed to send OTP mail for email: " + email);
+			System.err.println("Failed to send OTP mail for email: " + email + ": " + ex.getMessage());
+			return false;
 		}
 	}
 }

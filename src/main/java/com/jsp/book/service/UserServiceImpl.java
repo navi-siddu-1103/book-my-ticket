@@ -110,7 +110,10 @@ public class UserServiceImpl implements UserService {
 		// OTP generation & persistence
 		int otp = secureRandom.nextInt(100000, 1_000_000);
 
-		emailHelper.sendOtp(otp, userDto.getName(), userDto.getEmail());
+		if (!emailHelper.sendOtp(otp, userDto.getName(), userDto.getEmail())) {
+			attributes.addFlashAttribute("fail", "Unable to send OTP. Check mail configuration and try again.");
+			return "redirect:/register";
+		}
 		redisService.saveUserDto(userDto.getEmail(), userDto);
 		redisService.saveOtp(userDto.getEmail(), otp);
 
@@ -210,7 +213,11 @@ public class UserServiceImpl implements UserService {
 
 		int otp = secureRandom.nextInt(100000, 1_000_000);
 
-		emailHelper.sendOtp(otp, userDto.getName(), userDto.getEmail());
+		if (!emailHelper.sendOtp(otp, userDto.getName(), userDto.getEmail())) {
+			attributes.addFlashAttribute("fail", "Unable to send OTP. Check mail configuration and try again.");
+			attributes.addFlashAttribute("email", userDto.getEmail());
+			return "redirect:/otp";
+		}
 		redisService.saveOtp(userDto.getEmail(), otp);
 
 		attributes.addFlashAttribute("pass", "Otp Re-Sent Success");
@@ -234,7 +241,10 @@ public class UserServiceImpl implements UserService {
 
 		int otp = secureRandom.nextInt(100000, 1_000_000);
 
-		emailHelper.sendOtp(otp, user.getName(), email);
+		if (!emailHelper.sendOtp(otp, user.getName(), email)) {
+			attributes.addFlashAttribute("fail", "Unable to send OTP. Check mail configuration and try again.");
+			return "redirect:/forgot-password";
+		}
 		redisService.saveOtp(email, otp);
 
 		attributes.addFlashAttribute("pass", "Sent Success");
