@@ -1,7 +1,10 @@
 package com.jsp.book.util;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -22,16 +25,24 @@ public class CloudinaryHelper {
 
 	private final Cloudinary cloudinary;
 
-	public CloudinaryHelper(@Value("${cloudinary.url}") String cloudinaryUrl) {
+	public CloudinaryHelper(@Value("${cloudinary.url:}") String cloudinaryUrl) {
 		this.cloudinary = StringUtils.hasText(cloudinaryUrl) ? new Cloudinary(cloudinaryUrl) : null;
 	}
 
 	public String generateImageLink(MultipartFile file) {
-		return upload(file, MOVIE_FOLDER);
+		String uploaded = upload(file, MOVIE_FOLDER);
+		if (isFallbackImage(uploaded)) {
+			return saveLocalMovieImage(file);
+		}
+		return uploaded;
 	}
 
 	public String getTheaterImageLink(MultipartFile file) {
-		return upload(file, THEATER_FOLDER);
+		String uploaded = upload(file, THEATER_FOLDER);
+		if (isFallbackImage(uploaded)) {
+			return saveLocalTheaterImage(file);
+		}
+		return uploaded;
 	}
 
 	public String saveTicketQr(byte[] qr) {
@@ -70,6 +81,40 @@ public class CloudinaryHelper {
 				return urlString;
 			}
 			return FALLBACK_IMAGE;
+		} catch (Exception e) {
+			return FALLBACK_IMAGE;
+		}
+	}
+
+	private String saveLocalMovieImage(MultipartFile file) {
+		return saveLocalFile(file, "movies");
+	}
+
+	private String saveLocalTheaterImage(MultipartFile file) {
+		return saveLocalFile(file, "theaters");
+	}
+
+	private String saveLocalFile(MultipartFile file, String folderName) {
+		if (file == null || file.isEmpty()) {
+			return FALLBACK_IMAGE;
+		}
+
+		try {
+			String originalName = StringUtils.cleanPath(file.getOriginalFilename());
+			String extension = "";
+			int lastDot = originalName.lastIndexOf('.');
+			if (lastDot > 0 && lastDot < originalName.length() - 1) {
+				extension = originalName.substring(lastDot);
+			}
+
+			Path uploadDir = Path.of("src", "main", "resources", "static", "uploads", folderName);
+			Files.createDirectories(uploadDir);
+
+			String fileName = UUID.randomUUID() + extension;
+			Path target = uploadDir.resolve(fileName);
+			Files.copy(file.getInputStream(), target);
+
+			return "/uploads/" + folderName + "/" + fileName;
 		} catch (Exception e) {
 			return FALLBACK_IMAGE;
 		}
