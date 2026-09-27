@@ -13,6 +13,13 @@
 	href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap"
 	rel="stylesheet">
 
+<!-- Hide splash instantly on session revisits (runs before render) -->
+<script>
+	if (sessionStorage.getItem('bmt_splash_shown')) {
+		document.documentElement.style.setProperty('--splash-display', 'none');
+	}
+</script>
+
 <style>
 :root {
 	--bg-main: #0f172a;
@@ -30,12 +37,11 @@
 	inset: 0;
 	z-index: 99999;
 	background: #080c14;
-	display: flex;
+	display: var(--splash-display, flex);
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
 	gap: 28px;
-	animation: splashFadeIn 0.5s ease forwards;
 }
 
 #splash-screen.hide {
@@ -726,22 +732,26 @@ to {
 		var splash = document.getElementById('splash-screen');
 		if (!splash) return;
 
-		// Show splash only once per browser session
-		if (sessionStorage.getItem('splashShown')) {
+		// Clear any old key from previous version
+		sessionStorage.removeItem('splashShown');
+
+		// Already shown this session — keep hidden (head script already hid it)
+		if (sessionStorage.getItem('bmt_splash_shown')) {
 			splash.style.display = 'none';
 			return;
 		}
 
-		// Mark as shown for this session
-		sessionStorage.setItem('splashShown', '1');
+		// First visit — mark and show splash
+		sessionStorage.setItem('bmt_splash_shown', '1');
+		splash.style.display = 'flex'; // ensure visible
 
-		// Hide splash after 2.2 seconds
+		// Hide after 2.5 seconds with fade-out
 		setTimeout(function() {
 			splash.classList.add('hide');
 			setTimeout(function() {
 				splash.style.display = 'none';
-			}, 700); // matches fade-out duration
-		}, 2200);
+			}, 700);
+		}, 2500);
 	})();
 
 	// Auto-dismiss toasts after 3 seconds
