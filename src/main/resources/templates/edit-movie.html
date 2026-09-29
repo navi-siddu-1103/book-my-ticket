@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Add Movie - BookMyTicket Admin</title>
+<title>Edit Movie - BookMyTicket Admin</title>
 
 <!-- Favicon -->
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -25,8 +25,8 @@
 	--border-soft: #1f2937;
 	--text-main: #e5e7eb;
 	--text-muted: #9ca3af;
-	--accent: #e74c3c;
-	--accent-2: #f59e0b;
+	--accent: #6496ff;
+	--accent-pink: #ff4081;
 	--danger: #ef4444;
 }
 
@@ -58,7 +58,7 @@ body {
 /* Card */
 .form-box {
 	width: 100%;
-	max-width: 560px;
+	max-width: 580px;
 	padding: 45px;
 	background: linear-gradient(180deg, #111827, #0b1220);
 	border-radius: 18px;
@@ -69,15 +69,47 @@ body {
 
 h1 {
 	text-align: center;
-	margin-bottom: 35px;
+	margin-bottom: 30px;
 	font-weight: 800;
 	font-size: 1.9rem;
 	letter-spacing: 0.5px;
 }
 
+/* Current Poster Preview */
+.current-poster-preview {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	background: rgba(2, 6, 23, 0.6);
+	border: 1px solid var(--border-soft);
+	border-radius: 12px;
+	padding: 12px 16px;
+	margin-bottom: 22px;
+}
+
+.current-poster-preview img {
+	width: 60px;
+	height: 80px;
+	object-fit: cover;
+	border-radius: 8px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.current-poster-info h6 {
+	margin: 0 0 4px 0;
+	font-weight: 600;
+	font-size: 0.95rem;
+}
+
+.current-poster-info span {
+	font-size: 0.8rem;
+	color: var(--text-muted);
+	word-break: break-all;
+}
+
 /* Form */
 .form-group {
-	margin-bottom: 22px;
+	margin-bottom: 20px;
 }
 
 label {
@@ -98,151 +130,68 @@ label {
 }
 
 .form-control::placeholder {
-	color: var(--text-muted);
+	color: #64748b;
 }
 
 .form-control:focus, .form-file:focus {
-	background: #020617;
 	border-color: var(--accent);
-	box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2);
+	box-shadow: 0 0 0 3px rgba(100, 150, 255, 0.25);
 	outline: none;
-	color: var(--text-main);
-}
-
-textarea.form-control {
-	resize: none;
-}
-
-/* File input */
-.form-file::file-selector-button {
-	background: linear-gradient(135deg, var(--accent), var(--accent-2));
-	color: white;
-	border: none;
-	padding: 7px 14px;
-	border-radius: 6px;
-	font-weight: 600;
-	margin-right: 10px;
-	cursor: pointer;
-	transition: all 0.25s ease;
-}
-
-.form-file::file-selector-button:hover {
-	transform: translateY(-1px);
-	box-shadow: 0 6px 15px rgba(231, 76, 60, 0.35);
-}
-
-/* Errors */
-.error-text {
-	color: var(--danger);
-	font-size: 0.8rem;
-	margin-top: 5px;
-	font-weight: 600;
+	background: #020617;
+	color: #fff;
 }
 
 /* Buttons */
 .button-group {
 	display: flex;
-	gap: 14px;
+	gap: 15px;
 	margin-top: 30px;
 }
 
 .btn-submit {
 	flex: 1;
-	background: linear-gradient(135deg, var(--accent), #ff6b5a);
+	background: linear-gradient(135deg, var(--accent), var(--accent-pink));
+	color: #fff;
 	border: none;
-	color: white;
-	font-weight: 600;
-	padding: 12px;
-	border-radius: 10px;
+	padding: 13px;
+	border-radius: 12px;
+	font-weight: 700;
+	cursor: pointer;
+	box-shadow: 0 10px 25px rgba(100, 150, 255, 0.4);
 	transition: all 0.25s ease;
 }
 
 .btn-submit:hover {
 	transform: translateY(-2px);
-	box-shadow: 0 12px 30px rgba(231, 76, 60, 0.4);
+	box-shadow: 0 15px 35px rgba(100, 150, 255, 0.6);
 }
 
 .btn-cancel {
 	flex: 1;
-	background: transparent;
+	background: #1f2937;
+	color: var(--text-main);
 	border: 1px solid var(--border-soft);
-	color: var(--text-muted);
+	padding: 13px;
+	border-radius: 12px;
 	font-weight: 600;
-	padding: 12px;
-	border-radius: 10px;
 	text-align: center;
 	text-decoration: none;
 	transition: all 0.25s ease;
 }
 
 .btn-cancel:hover {
-	border-color: var(--accent);
-	color: var(--accent);
+	background: #374151;
+	color: #fff;
 }
 
-/* Toasts */
-.toastify-container {
-	position: fixed;
-	top: 20px;
-	right: 20px;
-	z-index: 9999;
-	max-width: 320px;
-	width: auto;
+/* Validation */
+.error-text {
+	color: var(--danger);
+	font-size: 0.8rem;
+	margin-top: 5px;
+	display: block;
 }
 
-.toastify {
-	width: auto;
-	max-width: 320px;
-	padding: 12px 16px;
-	border-radius: 10px;
-	color: white;
-	display: flex;
-	gap: 10px;
-	align-items: center;
-	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-	margin-bottom: 10px;
-	animation: toastSlideIn 0.35s ease;
-}
-
-.toastify.success {
-	background: #16a34a;
-}
-
-.toastify.error {
-	background: #dc2626;
-}
-
-.toastify-close {
-	background: rgba(255, 255, 255, 0.25);
-	border: none;
-	color: white;
-	border-radius: 50%;
-	width: 24px;
-	height: 24px;
-	font-weight: 700;
-	cursor: pointer;
-}
-
-@keyframes toastSlideIn {from { transform:translateX(400px);
-	opacity: 0;
-}
-
-to {
-	transform: translateX(0);
-	opacity: 1;
-}
-
-}
-@keyframes fadeInUp {from { opacity:0;
-	transform: translateY(25px);
-}
-
-to {
-	opacity: 1;
-	transform: translateY(0);
-}
-
-}
 /* Back Button */
 .back-btn {
 	display: inline-flex;
@@ -255,6 +204,7 @@ to {
 	margin-bottom: 20px;
 	transition: color 0.2s ease;
 }
+
 .back-btn:hover {
 	color: var(--accent);
 }
@@ -272,25 +222,25 @@ to {
 
 <body>
 
-	<!-- TOASTS -->
-	<div class="toastify-container">
-		<div th:if="${pass}" class="toastify success">
-			<span th:text="${pass}"></span>
-		</div>
-		<div th:if="${fail}" class="toastify error">
-			<span th:text="${fail}"></span>
-		</div>
-	</div>
-
 	<div class="form-container">
 		<div class="form-box">
 			<!-- Back Button -->
 			<a href="/manage-movies" class="back-btn">
 				&#8592; Back to Movies
 			</a>
-			<h1>🎬 Add Movie</h1>
+			<h1>🎬 Edit Movie</h1>
 
-			<form action="/add-movie" method="post" th:object="${movieDto}"
+			<!-- Current Poster Thumbnail -->
+			<div class="current-poster-preview" th:if="${currentImageLink}">
+				<img th:src="${currentImageLink}" alt="Current Poster"
+					onerror="this.onerror=null;this.src='https://placehold.co/120x160/e5e7eb/64748b?text=No+Poster';">
+				<div class="current-poster-info">
+					<h6>Current Poster</h6>
+					<span th:text="${currentImageLink}"></span>
+				</div>
+			</div>
+
+			<form th:action="'/edit-movie/' + ${id}" method="post" th:object="${movieDto}"
 				enctype="multipart/form-data">
 
 				<div class="form-group">
@@ -318,13 +268,12 @@ to {
 				</div>
 
 				<div class="form-group">
-					<label>Poster (Upload File or Enter URL) *</label>
+					<label>Poster Image (Optional - Upload to Replace)</label>
 					<input type="file" class="form-file" th:field="*{image}" accept="image/*">
-					<span class="error-text" th:errors="*{image}"></span>
 					<div class="mt-2">
-						<label class="text-muted" style="font-size: 0.82rem;">Or Paste Direct Poster Image URL</label>
-						<input class="form-control" th:field="*{imageUrl}" placeholder="https://example.com/poster.jpg">
-						<small class="text-muted d-block mt-1">Direct link from IMDb, TMDB, or Wikipedia works reliably without cloud upload</small>
+						<label class="text-muted" style="font-size: 0.82rem;">Or Enter Poster Image URL</label>
+						<input class="form-control" th:field="*{imageUrl}" placeholder="https://image.tmdb.org/t/p/w500/...jpg">
+						<small class="text-muted d-block mt-1">Leave empty to keep the existing poster</small>
 					</div>
 				</div>
 
@@ -352,7 +301,7 @@ to {
 				</div>
 
 				<div class="button-group">
-					<button class="btn-submit">Add Movie</button>
+					<button class="btn-submit">Save Changes</button>
 					<a href="/manage-movies" class="btn-cancel">Cancel</a>
 				</div>
 

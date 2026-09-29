@@ -82,6 +82,8 @@ public class CloudinaryHelper {
 			}
 			return FALLBACK_IMAGE;
 		} catch (Exception e) {
+			System.err.println("Cloudinary upload error: " + e.getMessage());
+			e.printStackTrace();
 			return FALLBACK_IMAGE;
 		}
 	}

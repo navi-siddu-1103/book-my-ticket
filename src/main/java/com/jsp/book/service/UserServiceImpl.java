@@ -888,19 +888,25 @@ public class UserServiceImpl implements UserService {
 		// Image validation
 		MultipartFile image = movieDto.getImage();
 		boolean hasImageFile = image != null && !image.isEmpty();
+		boolean hasImageUrl = movieDto.getImageUrl() != null && !movieDto.getImageUrl().trim().isEmpty();
 
-		if (!hasImageFile) {
-			result.rejectValue("image", "error.image", "* Image is Required");
+		if (!hasImageFile && !hasImageUrl) {
+			result.rejectValue("image", "error.image", "* Either an image file or an image URL is required");
 		}
 
 		if (result.hasErrors()) {
 			return "add-movie.html";
 		}
-		
-		String imageLink = cloudinaryHelper.generateImageLink(image);
-		if (cloudinaryHelper.isFallbackImage(imageLink)) {
-			result.rejectValue("image", "error.image", "* Image upload failed. Please choose another file.");
-			return "add-movie.html";
+
+		String imageLink;
+		if (hasImageUrl) {
+			imageLink = movieDto.getImageUrl().trim();
+		} else {
+			imageLink = cloudinaryHelper.generateImageLink(image);
+			if (cloudinaryHelper.isFallbackImage(imageLink)) {
+				result.rejectValue("image", "error.image", "* Image upload failed. Please check Cloudinary setup or provide an Image URL.");
+				return "add-movie.html";
+			}
 		}
 
 		Movie movie = new Movie(null, movieDto.getName(), movieDto.getLanguages(), movieDto.getGenre(),
@@ -910,6 +916,86 @@ public class UserServiceImpl implements UserService {
 		movieRepository.save(movie);
 
 		attributes.addFlashAttribute("pass", "Movie Added Success");
+		return "redirect:/manage-movies";
+	}
+
+	@Override
+	public String loadEditMovie(Long id, HttpSession session, RedirectAttributes attributes, ModelMap map) {
+
+		User loggedInUser = getUserFromSession(session);
+
+		if (loggedInUser == null || !"ADMIN".equals(loggedInUser.getRole())) {
+			attributes.addFlashAttribute("fail", "Invalid Session");
+			return "redirect:/login";
+		}
+
+		Optional<Movie> optionalMovie = movieRepository.findById(id);
+
+		if (optionalMovie.isEmpty()) {
+			attributes.addFlashAttribute("fail", "Invalid Movie");
+			return "redirect:/manage-movies";
+		}
+
+		Movie movie = optionalMovie.get();
+
+		MovieDto movieDto = new MovieDto(movie.getName(), movie.getLanguages(), movie.getGenre(),
+				movie.getDuration(), null, movie.getImageLink(), movie.getTrailerLink(),
+				movie.getDescription(), movie.getReleaseDate(), movie.getCast());
+
+		map.put("id", movie.getId());
+		map.put("currentImageLink", movie.getImageLink());
+		map.put("movieDto", movieDto);
+
+		return "edit-movie.html";
+	}
+
+	@Override
+	public String editMovie(Long id, @Valid MovieDto movieDto, BindingResult result,
+			RedirectAttributes attributes, HttpSession session, ModelMap map) {
+
+		User loggedInUser = getUserFromSession(session);
+
+		if (loggedInUser == null || !"ADMIN".equals(loggedInUser.getRole())) {
+			attributes.addFlashAttribute("fail", "Invalid Session");
+			return "redirect:/login";
+		}
+
+		Optional<Movie> optionalMovie = movieRepository.findById(id);
+
+		if (optionalMovie.isEmpty()) {
+			attributes.addFlashAttribute("fail", "Invalid Movie");
+			return "redirect:/manage-movies";
+		}
+
+		if (result.hasErrors()) {
+			map.put("id", id);
+			map.put("currentImageLink", optionalMovie.get().getImageLink());
+			return "edit-movie.html";
+		}
+
+		Movie movie = optionalMovie.get();
+		movie.setName(movieDto.getName());
+		movie.setLanguages(movieDto.getLanguages());
+		movie.setGenre(movieDto.getGenre());
+		movie.setDuration(movieDto.getDuration());
+		movie.setTrailerLink(movieDto.getTrailerLink());
+		movie.setDescription(movieDto.getDescription());
+		movie.setReleaseDate(movieDto.getReleaseDate());
+		movie.setCast(movieDto.getCast());
+
+		MultipartFile image = movieDto.getImage();
+		if (image != null && !image.isEmpty()) {
+			String uploaded = cloudinaryHelper.generateImageLink(image);
+			if (!cloudinaryHelper.isFallbackImage(uploaded)) {
+				movie.setImageLink(uploaded);
+			}
+		} else if (movieDto.getImageUrl() != null && !movieDto.getImageUrl().trim().isEmpty()) {
+			movie.setImageLink(movieDto.getImageUrl().trim());
+		}
+
+		movieRepository.save(movie);
+
+		attributes.addFlashAttribute("pass", "Movie Updated Successfully");
 		return "redirect:/manage-movies";
 	}
 	

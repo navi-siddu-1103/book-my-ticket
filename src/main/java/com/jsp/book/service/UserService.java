@@ -100,6 +100,11 @@ public interface UserService {
 
 	String addMovie(MovieDto movieDto, BindingResult result, RedirectAttributes attributes, HttpSession session);
 
+	String loadEditMovie(Long id, HttpSession session, RedirectAttributes attributes, ModelMap map);
+
+	String editMovie(Long id, MovieDto movieDto, BindingResult result, RedirectAttributes attributes,
+			HttpSession session, ModelMap map);
+
 	String deleteMovie(Long id, HttpSession session, RedirectAttributes attributes);
 
 	/* ---------- Show & Booking ---------- */
