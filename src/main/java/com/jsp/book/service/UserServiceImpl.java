@@ -879,12 +879,6 @@ public class UserServiceImpl implements UserService {
 			return "redirect:/login";
 		}
 
-		// Duplicate movie check
-		if (movieRepository.existsByNameAndReleaseDate(movieDto.getName(), movieDto.getReleaseDate())) {
-
-			result.rejectValue("name", "error.name", "* Movie Already Exists");
-		}
-
 		// Image validation
 		MultipartFile image = movieDto.getImage();
 		boolean hasImageFile = image != null && !image.isEmpty();
@@ -898,6 +892,17 @@ public class UserServiceImpl implements UserService {
 			return "add-movie.html";
 		}
 
+		// Duplicate movie check (safe after validation ensures name and releaseDate are non-null)
+		try {
+			if (movieDto.getName() != null && movieDto.getReleaseDate() != null
+					&& movieRepository.existsByNameAndReleaseDate(movieDto.getName(), movieDto.getReleaseDate())) {
+				result.rejectValue("name", "error.name", "* Movie Already Exists");
+				return "add-movie.html";
+			}
+		} catch (Exception ex) {
+			System.err.println("Error checking duplicate movie: " + ex.getMessage());
+		}
+
 		String imageLink;
 		if (hasImageUrl) {
 			imageLink = movieDto.getImageUrl().trim();
@@ -909,11 +914,20 @@ public class UserServiceImpl implements UserService {
 			}
 		}
 
+		String trailerLink = movieDto.getTrailerLink() != null ? movieDto.getTrailerLink().trim() : "";
+
 		Movie movie = new Movie(null, movieDto.getName(), movieDto.getLanguages(), movieDto.getGenre(),
 				movieDto.getDuration(), imageLink,
-				movieDto.getTrailerLink(), movieDto.getDescription(), movieDto.getReleaseDate(), movieDto.getCast());
+				trailerLink, movieDto.getDescription(), movieDto.getReleaseDate(), movieDto.getCast());
 
-		movieRepository.save(movie);
+		try {
+			movieRepository.save(movie);
+		} catch (Exception ex) {
+			System.err.println("Error saving movie: " + ex.getMessage());
+			ex.printStackTrace();
+			attributes.addFlashAttribute("fail", "Database error saving movie: " + ex.getMessage());
+			return "redirect:/manage-movies";
+		}
 
 		attributes.addFlashAttribute("pass", "Movie Added Success");
 		return "redirect:/manage-movies";

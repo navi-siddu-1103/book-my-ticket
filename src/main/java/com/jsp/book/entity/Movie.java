@@ -34,10 +34,10 @@ public class Movie {
 	@Column(nullable = false)
 	private LocalTime duration;
 
-	@Column(nullable = false)
+	@Column(nullable = false, columnDefinition = "TEXT")
 	private String imageLink;
 
-	@Column(nullable = false)
+	@Column(length = 1000)
 	private String trailerLink;
 
 	@Column(nullable = false, columnDefinition = "TEXT")
@@ -46,6 +46,6 @@ public class Movie {
 	@Column(nullable = false)
 	private LocalDate releaseDate;
 
-	@Column(nullable = false)
+	@Column(nullable = false, columnDefinition = "TEXT")
 	private String cast;
 }
