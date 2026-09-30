@@ -58,9 +58,11 @@ import com.razorpay.RazorpayException;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
 
 	/* ---------- Repositories ---------- */
@@ -110,15 +112,21 @@ public class UserServiceImpl implements UserService {
 		// OTP generation & persistence
 		int otp = secureRandom.nextInt(100000, 1_000_000);
 
-		if (!emailHelper.sendOtp(otp, userDto.getName(), userDto.getEmail())) {
-			attributes.addFlashAttribute("fail", "Unable to send OTP. Check mail configuration and try again.");
-			return "redirect:/register";
-		}
+		boolean emailSent = emailHelper.sendOtp(otp, userDto.getName(), userDto.getEmail());
 		redisService.saveUserDto(userDto.getEmail(), userDto);
 		redisService.saveOtp(userDto.getEmail(), otp);
 
-		attributes.addFlashAttribute("pass", "Otp Sent Success");
 		attributes.addFlashAttribute("email", userDto.getEmail());
+
+		if (emailSent) {
+			attributes.addFlashAttribute("pass", "OTP sent successfully to " + userDto.getEmail());
+		} else {
+			log.warn("==================================================================");
+			log.warn("⚠️ SMTP blocked by Render Free Tier (outbound ports 25/465/587 disabled).");
+			log.warn("🔑 REGISTRATION OTP for {}: {}", userDto.getEmail(), otp);
+			log.warn("==================================================================");
+			attributes.addFlashAttribute("fail", "Render Free Tier blocks SMTP. For testing, your OTP is: " + otp);
+		}
 
 		return "redirect:/otp";
 	}
@@ -213,15 +221,20 @@ public class UserServiceImpl implements UserService {
 
 		int otp = secureRandom.nextInt(100000, 1_000_000);
 
-		if (!emailHelper.sendOtp(otp, userDto.getName(), userDto.getEmail())) {
-			attributes.addFlashAttribute("fail", "Unable to send OTP. Check mail configuration and try again.");
-			attributes.addFlashAttribute("email", userDto.getEmail());
-			return "redirect:/otp";
-		}
+		boolean emailSent = emailHelper.sendOtp(otp, userDto.getName(), userDto.getEmail());
 		redisService.saveOtp(userDto.getEmail(), otp);
 
-		attributes.addFlashAttribute("pass", "Otp Re-Sent Success");
 		attributes.addFlashAttribute("email", userDto.getEmail());
+
+		if (emailSent) {
+			attributes.addFlashAttribute("pass", "OTP re-sent successfully to " + userDto.getEmail());
+		} else {
+			log.warn("==================================================================");
+			log.warn("⚠️ SMTP blocked by Render Free Tier (outbound ports 25/465/587 disabled).");
+			log.warn("🔑 RESENT OTP for {}: {}", userDto.getEmail(), otp);
+			log.warn("==================================================================");
+			attributes.addFlashAttribute("fail", "Render Free Tier blocks SMTP. For testing, your OTP is: " + otp);
+		}
 
 		return "redirect:/otp";
 	}
@@ -241,14 +254,20 @@ public class UserServiceImpl implements UserService {
 
 		int otp = secureRandom.nextInt(100000, 1_000_000);
 
-		if (!emailHelper.sendOtp(otp, user.getName(), email)) {
-			attributes.addFlashAttribute("fail", "Unable to send OTP. Check mail configuration and try again.");
-			return "redirect:/forgot-password";
-		}
+		boolean emailSent = emailHelper.sendOtp(otp, user.getName(), email);
 		redisService.saveOtp(email, otp);
 
-		attributes.addFlashAttribute("pass", "Sent Success");
 		attributes.addFlashAttribute("email", email);
+
+		if (emailSent) {
+			attributes.addFlashAttribute("pass", "Password reset OTP sent to " + email);
+		} else {
+			log.warn("==================================================================");
+			log.warn("⚠️ SMTP blocked by Render Free Tier (outbound ports 25/465/587 disabled).");
+			log.warn("🔑 RESET PASSWORD OTP for {}: {}", email, otp);
+			log.warn("==================================================================");
+			attributes.addFlashAttribute("fail", "Render Free Tier blocks SMTP. For testing, your OTP is: " + otp);
+		}
 
 		return "redirect:/reset-password";
 	}

@@ -38,9 +38,9 @@ spring:
           auth: true
           starttls:
             enable: true
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
+          connectiontimeout: 3000
+          timeout: 3000
+          writetimeout: 3000
 
 admin:
   email: ${ADMIN_EMAIL:admin@gmail.com}
@@ -48,3 +48,9 @@ admin:
 
 cloudinary:
   url: ${CLOUDINARY_URL}
+
+brevo:
+  api-key: ${BREVO_API_KEY:}
+
+resend:
+  api-key: ${RESEND_API_KEY:}
