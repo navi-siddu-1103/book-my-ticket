@@ -82,6 +82,10 @@ public class EmailHelper {
 			String safeHtml = htmlBody.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "").replace("\r", "");
 
 			String apiKey = brevoApiKey.trim().replace("\"", "").replace("'", "");
+			if (apiKey.startsWith("xsmtpsib-")) {
+				log.warn("BREVO CONFIG WARNING: Provided key starts with 'xsmtpsib-' (SMTP key). Brevo HTTPS API requires an API key starting with 'xkeysib-' from the 'API Keys' tab.");
+				return false;
+			}
 			if (!apiKey.startsWith("xkeysib-")) {
 				apiKey = "xkeysib-" + apiKey;
 			}
