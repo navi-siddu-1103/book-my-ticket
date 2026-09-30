@@ -81,6 +81,11 @@ public class EmailHelper {
 			String safeName = toName != null ? toName.replace("\"", "\\\"") : "User";
 			String safeHtml = htmlBody.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "").replace("\r", "");
 
+			String apiKey = brevoApiKey.trim().replace("\"", "").replace("'", "");
+			if (!apiKey.startsWith("xkeysib-")) {
+				apiKey = "xkeysib-" + apiKey;
+			}
+
 			String payload = "{"
 					+ "\"sender\":{\"name\":\"" + FROM_NAME + "\",\"email\":\"" + fromEmail + "\"},"
 					+ "\"to\":[{\"email\":\"" + toEmail + "\",\"name\":\"" + safeName + "\"}],"
@@ -90,7 +95,7 @@ public class EmailHelper {
 
 			HttpRequest request = HttpRequest.newBuilder()
 					.uri(URI.create("https://api.brevo.com/v3/smtp/email"))
-					.header("api-key", brevoApiKey.trim())
+					.header("api-key", apiKey)
 					.header("Content-Type", "application/json")
 					.header("Accept", "application/json")
 					.POST(HttpRequest.BodyPublishers.ofString(payload))
