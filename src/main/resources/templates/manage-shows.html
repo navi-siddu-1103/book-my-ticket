@@ -2,6 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Manage Shows | BookMyTicket</title>
 
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -29,11 +30,13 @@ body {
 	background: radial-gradient(circle at top, #1e293b, var(--bg-main));
 	color: var(--text-main);
 	min-height: 100vh;
+	padding: 0 0 40px;
 }
 
 .container {
 	max-width: 1300px;
-	margin-top: 50px;
+	margin-top: 30px;
+	padding: 0 15px;
 }
 
 /* ===== HEADER ===== */
@@ -41,7 +44,7 @@ body {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-bottom: 30px;
+	margin-bottom: 25px;
 	flex-wrap: wrap;
 	gap: 15px;
 }
@@ -56,15 +59,17 @@ body {
 	background: linear-gradient(135deg, #6496ff, #ff4081);
 	color: #fff;
 	font-weight: 700;
-	padding: .7rem 1.8rem;
-	border-radius: 14px;
+	padding: .65rem 1.6rem;
+	border-radius: 12px;
 	border: none;
-	box-shadow: 0 15px 35px rgba(100, 150, 255, .45);
+	box-shadow: 0 12px 30px rgba(100, 150, 255, .4);
+	text-decoration: none;
+	display: inline-block;
 }
 
 .btn-add:hover {
 	transform: translateY(-2px);
-	box-shadow: 0 25px 55px rgba(100, 150, 255, .6);
+	box-shadow: 0 20px 45px rgba(100, 150, 255, .55);
 	color: #fff;
 }
 
@@ -73,28 +78,33 @@ body {
 	border: 1px solid var(--danger);
 	color: var(--danger);
 	font-weight: 700;
-	padding: .45rem 1rem;
-	border-radius: 10px;
+	padding: .35rem .85rem;
+	border-radius: 8px;
+	text-decoration: none;
+	display: inline-block;
+	font-size: .8rem;
 }
 
 .btn-delete:hover {
 	background: var(--danger);
 	color: #fff;
-	box-shadow: 0 10px 25px rgba(255, 77, 109, .45);
+	box-shadow: 0 8px 20px rgba(255, 77, 109, .4);
 }
 
 /* ===== TABLE ===== */
 .table-wrapper {
 	background: linear-gradient(180deg, #111827, #0b1220);
 	border: 1px solid var(--border);
-	border-radius: 18px;
-	overflow: hidden;
-	box-shadow: 0 30px 70px rgba(0, 0, 0, .7);
+	border-radius: 16px;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+	box-shadow: 0 25px 60px rgba(0, 0, 0, .6);
 }
 
 .table {
 	margin: 0;
 	color: var(--text-main);
+	min-width: 650px;
 }
 
 .table thead th {
@@ -105,14 +115,17 @@ body {
 	letter-spacing: .5px;
 	font-size: .8rem;
 	border: none;
-	padding: 16px;
+	padding: 14px 16px;
+	white-space: nowrap;
 }
 
 .table tbody td {
-	padding: 14px 16px;
+	padding: 13px 16px;
 	border-color: var(--border);
 	font-weight: 500;
 	font-size: .9rem;
+	vertical-align: middle;
+	white-space: nowrap;
 }
 
 .table tbody tr:hover {
@@ -122,11 +135,11 @@ body {
 /* ===== EMPTY STATE ===== */
 .empty-state {
 	text-align: center;
-	padding: 90px 30px;
+	padding: 70px 20px;
 	background: linear-gradient(180deg, #111827, #0b1220);
-	border-radius: 20px;
+	border-radius: 18px;
 	border: 1px solid var(--border);
-	box-shadow: 0 30px 70px rgba(0, 0, 0, .7);
+	box-shadow: 0 25px 60px rgba(0, 0, 0, .6);
 }
 
 .empty-state h3 {
@@ -140,12 +153,32 @@ body {
 }
 
 /* ===== RESPONSIVE ===== */
-@media ( max-width :768px) {
+@media (max-width: 768px) {
+	.container {
+		margin-top: 20px;
+	}
 	.header h1 {
-		font-size: 1.4rem
+		font-size: 1.4rem;
 	}
 	.table {
-		font-size: .8rem
+		font-size: .82rem;
+	}
+	.table thead th, .table tbody td {
+		padding: 10px 12px;
+	}
+}
+
+@media (max-width: 576px) {
+	.header {
+		flex-direction: column;
+		align-items: stretch;
+	}
+	.header .btn-add {
+		text-align: center;
+		width: 100%;
+	}
+	.header h1 {
+		font-size: 1.25rem;
 	}
 }
 </style>
@@ -158,7 +191,7 @@ body {
 		<!-- HEADER -->
 		<div class="header">
 			<h1>🎥 Manage Shows</h1>
-			<a th:href="'/add-show/'+${id}" class="btn btn-add">+ Add Show</a>
+			<a th:href="'/add-show/'+${id}" class="btn-add">+ Add Show</a>
 		</div>
 
 		<!-- TABLE -->
@@ -184,7 +217,7 @@ body {
 						<td>₹ <span th:text="${show.ticketPrice}"></span></td>
 						<td th:text="${#lists.size(show.seats)}"></td>
 						<td><a th:href="'/delete-show/'+${show.id}"
-							class="btn btn-delete"
+							class="btn-delete"
 							onclick="return confirm('Delete this show?');"> Delete </a></td>
 					</tr>
 				</tbody>
@@ -195,7 +228,7 @@ body {
 		<div th:if="${shows.isEmpty()}" class="empty-state">
 			<h3>🎭 No Shows Available</h3>
 			<p>Create your first show to start bookings.</p>
-			<a th:href="'/add-show/'+${id}" class="btn btn-add">+ Add First
+			<a th:href="'/add-show/'+${id}" class="btn-add">+ Add First
 				Show</a>
 		</div>
 
@@ -203,3 +236,4 @@ body {
 
 </body>
 </html>
+

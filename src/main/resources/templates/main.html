@@ -579,23 +579,50 @@ to {
 }
 .btn-logout:hover { opacity: 0.88; color: #fff; }
 
+/* ===== TABLET (≤992px) ===== */
 @media (max-width: 992px) {
+	.navbar {
+		padding: .7rem 1.2rem;
+	}
 	.navbar .d-flex {
 		flex-wrap: wrap;
 		gap: 8px;
 		margin-top: 10px;
 	}
+	.hero h1 {
+		font-size: 2.6rem;
+	}
+	.movie-card img {
+		height: 240px;
+	}
 }
 
+/* ===== MOBILE LANDSCAPE / LARGE PHONE (≤768px) ===== */
 @media (max-width: 768px) {
+	.navbar {
+		padding: .6rem 1rem;
+	}
+	.navbar-brand {
+		font-size: 1.25rem;
+	}
+	.hero {
+		padding: 40px 15px;
+		min-height: calc(100vh - 60px);
+	}
 	.hero h1 {
 		font-size: 1.9rem;
 	}
 	.hero p {
 		font-size: 1rem;
+		letter-spacing: 0.5px;
+	}
+	.hero .btn {
+		padding: 12px 28px;
+		font-size: .95rem;
+		margin-top: 20px;
 	}
 	.movie-card img {
-		height: 220px;
+		height: 200px;
 	}
 	.toastify-container {
 		right: 10px;
@@ -611,6 +638,44 @@ to {
 	#movies h2 {
 		font-size: 1.5rem;
 		margin-bottom: 30px;
+	}
+}
+
+/* ===== SMALL MOBILE (≤576px) ===== */
+@media (max-width: 576px) {
+	.navbar-brand {
+		font-size: 1.1rem;
+	}
+	.hero {
+		padding: 30px 12px;
+	}
+	.hero h1 {
+		font-size: 1.55rem;
+		line-height: 1.3;
+	}
+	.hero p {
+		font-size: .9rem;
+	}
+	.hero .btn {
+		width: 100%;
+		padding: 13px 20px;
+	}
+	.movie-card img {
+		height: 180px;
+	}
+	.movie-card .card-body {
+		padding: 14px;
+	}
+	#movies {
+		padding: 28px 0;
+	}
+	#movies h2 {
+		font-size: 1.3rem;
+		margin-bottom: 20px;
+	}
+	footer {
+		font-size: .85rem;
+		padding: 16px;
 	}
 }
 </style>

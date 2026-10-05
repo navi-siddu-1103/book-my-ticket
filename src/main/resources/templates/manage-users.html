@@ -123,6 +123,7 @@ body {
 	padding: 16px;
 	border-color: var(--border);
 	font-size: .9rem;
+	vertical-align: middle;
 }
 
 .table tbody tr:hover {
@@ -194,12 +195,34 @@ body {
 }
 
 /* ===== RESPONSIVE ===== */
-@media ( max-width :768px) {
+@media (max-width: 768px) {
+	.admin-container {
+		padding: 0 15px;
+		margin: 30px auto;
+	}
+	.admin-header {
+		flex-direction: column;
+		align-items: flex-start;
+	}
 	.admin-header h1 {
-		font-size: 1.5rem
+		font-size: 1.5rem;
+	}
+	.back-link {
+		width: 100%;
+		text-align: center;
 	}
 	.action-cell {
-		flex-direction: column
+		flex-direction: column;
+		gap: 5px;
+	}
+	.btn-block,
+	.btn-unblock {
+		width: 100%;
+		text-align: center;
+	}
+	/* Hide Mobile column on very small screens */
+	.col-mobile {
+		display: none;
 	}
 }
 </style>
@@ -211,7 +234,9 @@ body {
 		<div class="container-fluid">
 			<a class="navbar-brand" href="/">🎬 BookMyTicket</a>
 			<button class="navbar-toggler" type="button"
-				data-bs-toggle="collapse" data-bs-target="#navbarNav">
+				data-bs-toggle="collapse" data-bs-target="#navbarNav"
+				aria-controls="navbarNav" aria-expanded="false"
+				aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
 			</button>
 			<div class="collapse navbar-collapse" id="navbarNav">
@@ -236,30 +261,33 @@ body {
 		<!-- TABLE -->
 		<div th:if="${users != null && users.size() > 0}"
 			class="table-wrapper">
-			<table class="table">
-				<thead>
-					<tr>
-						<th>Name</th>
-						<th>Email</th>
-						<th>Mobile</th>
-						<th>Action</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr th:each="user:${users}">
-						<td class="user-name" th:text="${user.name}"></td>
-						<td class="user-email" th:text="${user.email}"></td>
-						<td class="user-mobile" th:text="${user.mobile}"></td>
-						<td>
-							<div class="action-cell">
-								<a th:if="${!user.blocked}" th:href="'/block/'+${user.id}"
-									class="btn-block">Block</a> <a th:if="${user.blocked}"
-									th:href="'/un-block/'+${user.id}" class="btn-unblock">Unblock</a>
-							</div>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+			<div class="table-responsive">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Name</th>
+							<th>Email</th>
+							<th class="d-none d-sm-table-cell">Mobile</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="user:${users}">
+							<td class="user-name" th:text="${user.name}"></td>
+							<td class="user-email" th:text="${user.email}"></td>
+							<td class="user-mobile d-none d-sm-table-cell" th:text="${user.mobile}"></td>
+							<td>
+								<div class="action-cell">
+									<a th:if="${!user.blocked}" th:href="'/block/'+${user.id}"
+										class="btn-block">Block</a>
+									<a th:if="${user.blocked}" th:href="'/un-block/'+${user.id}"
+										class="btn-unblock">Unblock</a>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 		</div>
 
 		<!-- EMPTY -->

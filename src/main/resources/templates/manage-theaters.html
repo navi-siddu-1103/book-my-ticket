@@ -98,7 +98,7 @@ body {
 /* ===== GRID ===== */
 .theaters-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 	gap: 30px;
 }
 
@@ -176,6 +176,7 @@ body {
 
 .btn-edit:hover {
 	background: #1d4ed8;
+	color: white;
 }
 
 .btn-location {
@@ -185,6 +186,7 @@ body {
 
 .btn-location:hover {
 	background: #334155;
+	color: white;
 }
 
 .btn-screens {
@@ -194,6 +196,7 @@ body {
 
 .btn-screens:hover {
 	background: #d97706;
+	color: #111827;
 }
 
 .btn-delete {
@@ -228,12 +231,34 @@ body {
 }
 
 /* ===== RESPONSIVE ===== */
-@media ( max-width :768px) {
+@media (max-width: 768px) {
+	.admin-container {
+		padding: 0 15px;
+		margin: 30px auto;
+	}
+	.admin-header {
+		flex-direction: column;
+		align-items: flex-start;
+	}
 	.admin-header h1 {
-		font-size: 1.5rem
+		font-size: 1.5rem;
+	}
+	.add-btn {
+		width: 100%;
+		text-align: center;
 	}
 	.card-actions {
-		grid-template-columns: 1fr
+		grid-template-columns: 1fr;
+	}
+	.theaters-grid {
+		grid-template-columns: 1fr;
+		gap: 20px;
+	}
+}
+
+@media (min-width: 480px) and (max-width: 768px) {
+	.theaters-grid {
+		grid-template-columns: repeat(2, 1fr);
 	}
 }
 </style>
@@ -245,7 +270,9 @@ body {
 		<div class="container-fluid">
 			<a class="navbar-brand" href="/">🎬 BookMyTicket</a>
 			<button class="navbar-toggler" type="button"
-				data-bs-toggle="collapse" data-bs-target="#navbarNav">
+				data-bs-toggle="collapse" data-bs-target="#navbarNav"
+				aria-controls="navbarNav" aria-expanded="false"
+				aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
 			</button>
 			<div class="collapse navbar-collapse" id="navbarNav">
@@ -270,14 +297,15 @@ body {
 		<!-- EMPTY -->
 		<div th:if="${theaters.isEmpty()}" class="empty-state">
 			<h2>No Theaters Found</h2>
-			<p>Add your first theater to start managing screens & shows.</p>
+			<p>Add your first theater to start managing screens &amp; shows.</p>
 			<a href="/add-theater" class="add-btn">+ Add First Theater</a>
 		</div>
 
 		<!-- GRID -->
 		<div th:if="${!theaters.isEmpty()}" class="theaters-grid">
 			<div th:each="theater:${theaters}" class="theater-card">
-				<img th:src="${theater.imageLocation}" class="theater-image">
+				<img th:src="${theater.imageLocation}" class="theater-image"
+					onerror="this.onerror=null;this.src='https://placehold.co/400x180/1f2937/9ca3af?text=No+Image';">
 
 				<div class="theater-content">
 					<div class="theater-name" th:text="${theater.name}"></div>
@@ -291,12 +319,12 @@ body {
 
 					<div class="card-actions">
 						<a th:href="'/edit-theater/'+${theater.id}"
-							class="btn-action btn-edit">Edit</a> <a
-							th:href="${theater.locationLink}" target="_blank"
-							class="btn-action btn-location">Location</a> <a
-							th:href="'/manage-screens/'+${theater.id}"
-							class="btn-action btn-screens">Screens</a> <a
-							th:href="'/delete-theater/'+${theater.id}"
+							class="btn-action btn-edit">Edit</a>
+						<a th:href="${theater.locationLink}" target="_blank"
+							class="btn-action btn-location">Location</a>
+						<a th:href="'/manage-screens/'+${theater.id}"
+							class="btn-action btn-screens">Screens</a>
+						<a th:href="'/delete-theater/'+${theater.id}"
 							onclick="return confirm('Delete this theater?');"
 							class="btn-action btn-delete">Delete</a>
 					</div>
