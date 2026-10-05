@@ -91,8 +91,19 @@ to {
 	transform: translateY(0);
 }
 
+/* Back */
+.back-btn {
+	color: var(--text-muted);
+	text-decoration: none;
+	font-weight: 600;
+	transition: color 0.2s ease;
 }
-@media ( max-width : 768px) {
+
+.back-btn:hover {
+	color: var(--accent);
+}
+
+@media (max-width: 768px) {
 	.theater-name {
 		font-size: 1.3rem;
 	}
@@ -101,12 +112,35 @@ to {
 		font-size: 0.85rem;
 	}
 }
+
+@media (max-width: 576px) {
+	body {
+		padding: 20px 12px;
+	}
+	.theater-card {
+		padding: 16px 14px;
+		margin-bottom: 16px;
+		border-radius: 14px;
+	}
+	.theater-name {
+		font-size: 1.15rem;
+		margin-bottom: 10px;
+	}
+	.show-time {
+		padding: 6px 10px;
+		font-size: 0.8rem;
+		margin: 3px;
+		border-radius: 8px;
+	}
+}
 </style>
 </head>
 
 <body>
 
 	<div class="container">
+
+		<a href="/" class="back-btn mb-3 d-inline-block">← Back to Movies</a>
 
 		<h2 class="fw-bold mb-4 text-center">🎭 Select Theater & Show</h2>
 
