@@ -1,18 +1,20 @@
 package com.jsp.book.service;
 
 import java.time.Duration;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.jsp.book.dto.UserDto;
 import com.jsp.book.entity.BookedTicket;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RedisServiceImpl implements RedisService {
 
 	private static final String USER_DTO_KEY = "dto-";
@@ -24,38 +26,81 @@ public class RedisServiceImpl implements RedisService {
 
 	private final RedisTemplate<String, Object> redisTemplate;
 
+	/* ---------- In-memory fallback (used when Redis is unavailable) ---------- */
+	private final ConcurrentHashMap<String, Object> fallbackStore = new ConcurrentHashMap<>();
+
+	// ─── Save helpers ────────────────────────────────────────────────────────────
+
 	@Override
-	@Async
 	public void saveUserDto(String email, UserDto userDto) {
-		redisTemplate.opsForValue().set(USER_DTO_KEY + email, userDto, USER_DTO_TTL);
+		String key = USER_DTO_KEY + email;
+		try {
+			redisTemplate.opsForValue().set(key, userDto, USER_DTO_TTL);
+		} catch (Exception e) {
+			log.warn("Redis unavailable – storing UserDto in memory for {}", email);
+			fallbackStore.put(key, userDto);
+		}
 	}
 
 	@Override
-	@Async
 	public void saveOtp(String email, int otp) {
-		redisTemplate.opsForValue().set(OTP_KEY + email, otp, OTP_TTL);
-	}
-
-	@Override
-	public UserDto getUserDto(String email) {
-		Object value = redisTemplate.opsForValue().get(USER_DTO_KEY + email);
-		return (value instanceof UserDto dto) ? dto : null;
-	}
-
-	@Override
-	public int getOtp(String email) {
-		Object value = redisTemplate.opsForValue().get(OTP_KEY + email);
-		return (value instanceof Integer otp) ? otp : 0;
+		String key = OTP_KEY + email;
+		try {
+			redisTemplate.opsForValue().set(key, otp, OTP_TTL);
+		} catch (Exception e) {
+			log.warn("Redis unavailable – storing OTP in memory for {}", email);
+			fallbackStore.put(key, otp);
+		}
 	}
 
 	@Override
 	public void saveTicket(String orderId, BookedTicket ticket) {
-		redisTemplate.opsForValue().set(orderId, ticket, TICKET_TTL);
+		try {
+			redisTemplate.opsForValue().set(orderId, ticket, TICKET_TTL);
+		} catch (Exception e) {
+			log.warn("Redis unavailable – storing ticket in memory for orderId {}", orderId);
+			fallbackStore.put(orderId, ticket);
+		}
+	}
+
+	// ─── Get helpers ─────────────────────────────────────────────────────────────
+
+	@Override
+	public UserDto getUserDto(String email) {
+		String key = USER_DTO_KEY + email;
+		try {
+			Object value = redisTemplate.opsForValue().get(key);
+			if (value instanceof UserDto dto) return dto;
+		} catch (Exception e) {
+			log.warn("Redis unavailable – reading UserDto from memory for {}", email);
+		}
+		Object fallback = fallbackStore.get(key);
+		return (fallback instanceof UserDto dto) ? dto : null;
+	}
+
+	@Override
+	public int getOtp(String email) {
+		String key = OTP_KEY + email;
+		try {
+			Object value = redisTemplate.opsForValue().get(key);
+			if (value instanceof Integer otp) return otp;
+		} catch (Exception e) {
+			log.warn("Redis unavailable – reading OTP from memory for {}", email);
+		}
+		Object fallback = fallbackStore.get(key);
+		return (fallback instanceof Integer otp) ? otp : 0;
 	}
 
 	@Override
 	public BookedTicket getTicket(String orderId) {
-		Object value = redisTemplate.opsForValue().get(orderId);
-		return (value instanceof BookedTicket ticket) ? ticket : null;
+		try {
+			Object value = redisTemplate.opsForValue().get(orderId);
+			if (value instanceof BookedTicket ticket) return ticket;
+		} catch (Exception e) {
+			log.warn("Redis unavailable – reading ticket from memory for orderId {}", orderId);
+		}
+		Object fallback = fallbackStore.get(orderId);
+		return (fallback instanceof BookedTicket ticket) ? ticket : null;
 	}
 }
+

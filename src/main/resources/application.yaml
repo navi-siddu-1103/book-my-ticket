@@ -26,6 +26,11 @@ spring:
   data:
     redis:
       url: ${SPRING_REDIS_URL:redis://localhost:6379}
+      lettuce:
+        pool:
+          # Pooling enabled; connection errors at startup won't crash the app
+          enabled: true
+        shutdown-timeout: 100ms
 
   mail:
     host: smtp.gmail.com
