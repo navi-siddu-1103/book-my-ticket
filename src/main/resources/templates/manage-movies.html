@@ -138,6 +138,10 @@ body {
 	font-weight: 500;
 }
 
+.release-date {
+	white-space: nowrap;
+}
+
 .table tbody tr {
 	transition: .3s ease;
 }
@@ -322,7 +326,7 @@ body {
 								<td><span class="movie-genre" th:text="${movie.genre}"></span></td>
 								<td th:text="${movie.duration}"></td>
 								<td class="d-none d-md-table-cell" th:text="${movie.languages}"></td>
-								<td class="d-none d-md-table-cell" th:text="${movie.releaseDate}"></td>
+								<td class="d-none d-md-table-cell release-date" th:text="${movie.releaseDate}"></td>
 								<td>
 									<div class="action-cell">
 										<a th:href="'/edit-movie/'+${movie.id}" class="btn-edit">Edit</a>

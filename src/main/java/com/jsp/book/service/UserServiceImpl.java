@@ -867,7 +867,7 @@ public class UserServiceImpl implements UserService {
 			return "redirect:/login";
 		}
 
-		List<Movie> movies = movieRepository.findAll();
+		List<Movie> movies = movieRepository.findAllByOrderByReleaseDateDesc();
 		map.put("movies", movies);
 
 		return "manage-movies.html";
