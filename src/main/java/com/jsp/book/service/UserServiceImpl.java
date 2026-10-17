@@ -700,7 +700,9 @@ public class UserServiceImpl implements UserService {
 		seatRepository.deleteAll(seats);
 
 		// Update theater screen count
-		theater.setScreenCount((theater.getScreenCount() != null ? theater.getScreenCount() : 1) - 1);
+		// theater.setScreenCount((theater.getScreenCount() != null ? theater.getScreenCount() : 1) - 1);
+		int screenCount = theater.getScreenCount() == null ? 0 : theater.getScreenCount();
+		theater.setScreenCount(Math.max(0, screenCount - 1));
 		theaterRepository.save(theater);
 
 		screenRepository.delete(screen);
