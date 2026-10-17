@@ -80,15 +80,26 @@ body {
 	font-style: italic;
 }
 
-/* Animation */
-@
-keyframes fadeInUp {from { opacity:0;
-	transform: translateY(20px);
+/* Shows label */
+.shows-label {
+	color: var(--text-muted);
+	font-weight: 600;
+	font-size: 0.9rem;
+	margin-right: 6px;
+	display: inline-block;
+	vertical-align: middle;
 }
 
-to {
-	opacity: 1;
-	transform: translateY(0);
+/* Animation */
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 /* Back */
@@ -154,7 +165,7 @@ to {
 				</div>
 
 				<div>
-					<span class="text-muted me-2">Shows:</span> <span
+					<span class="shows-label">Shows:</span> <span
 						th:if="${theaters.get(theater).isEmpty()}" class="no-shows">
 						No shows available </span> <a th:each="show : ${theaters.get(theater)}"
 						th:href="'/show-seats/' + ${show.id}" class="show-time"

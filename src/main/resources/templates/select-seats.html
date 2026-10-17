@@ -56,8 +56,9 @@ body {
 /* Seat rows */
 .row-wrapper {
 	display: flex;
-	align-items: flex-start;
-	margin-bottom: 14px;
+	align-items: center;
+	margin-bottom: 10px;
+	min-width: max-content;
 }
 
 .row-name {
@@ -65,15 +66,15 @@ body {
 	min-width: 50px;
 	font-weight: 700;
 	color: #9ca3af;
-	padding-top: 6px;
 	font-size: 0.9rem;
+	flex-shrink: 0;
 }
 
 /* Overflow wrapper for the entire seat grid */
 .seat-grid-scroll {
 	overflow-x: auto;
 	-webkit-overflow-scrolling: touch;
-	padding-bottom: 6px;
+	padding-bottom: 10px;
 	width: 100%;
 }
 
@@ -81,12 +82,12 @@ body {
 .seat {
 	width: 36px;
 	height: 36px;
-	margin: 4px;
+	margin: 3px;
 	border-radius: 6px;
-	display: flex;
+	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	font-size: 0.75rem;
+	font-size: 0.7rem;
 	font-weight: 600;
 	cursor: pointer;
 	user-select: none;
@@ -170,8 +171,8 @@ body {
 	.seat {
 		width: 28px;
 		height: 28px;
-		margin: 3px;
-		font-size: 0.65rem;
+		margin: 2px;
+		font-size: 0.6rem;
 	}
 
 	.row-name {
@@ -213,11 +214,10 @@ body {
 
 		<div class="screen">🎬 SCREEN THIS SIDE 🎬</div>
 
-		<form action="/confirm-booking" method="post"
+		<form id="bookingForm" action="/confirm-booking" method="post"
 			onsubmit="return prepareSeats()">
 
-			<input type="hidden" name="seatIds" id="seatIds"> <input
-				type="hidden" name="showId" th:value="${showId}">
+			<input type="hidden" name="showId" th:value="${showId}">
 
 			<!-- Seat grid scroll wrapper -->
 			<div class="seat-grid-scroll">
@@ -226,17 +226,15 @@ body {
 				<div th:each="rowEntry : ${seatsByRow}">
 					<div class="row-wrapper">
 
-						<!-- Row Name -->
+						<!-- Row Label -->
 						<div class="row-name" th:text="${rowEntry.key}"></div>
 
-						<!-- Seats -->
-						<div class="d-flex flex-wrap">
+						<!-- Seats in a single non-wrapping row -->
+						<div style="display:flex; flex-wrap:nowrap;">
 							<div th:each="showSeat : ${rowEntry.value}" class="seat"
-								th:classappend="
-							        ${showSeat.seat.category}
-							        + (${showSeat.booked} ? ' booked' : '')
-							     "
-								th:text="${showSeat.seat.seatColumn}" th:data-id="${showSeat.id}"
+								th:classappend="${showSeat.seat.category} + (${showSeat.booked} ? ' booked' : '')"
+								th:text="${showSeat.seat.seatColumn}"
+								th:data-id="${showSeat.id}"
 								onclick="toggleSeat(this)"></div>
 						</div>
 
@@ -278,11 +276,19 @@ function prepareSeats() {
 		return false;
 	}
 
-	const seatIds = Array.from(selected)
-		.map(seat => seat.dataset.id)
-		.join(',');
+	// Remove any previously added dynamic inputs
+	document.querySelectorAll('.dynamic-seat-input').forEach(e => e.remove());
 
-	document.getElementById("seatIds").value = seatIds;
+	const form = document.getElementById('bookingForm');
+	selected.forEach(seat => {
+		const input = document.createElement('input');
+		input.type = 'hidden';
+		input.name = 'seatIds';
+		input.value = seat.dataset.id;
+		input.className = 'dynamic-seat-input';
+		form.appendChild(input);
+	});
+
 	return true;
 }
 	</script>

@@ -6,6 +6,7 @@ import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -490,7 +491,7 @@ public class UserServiceImpl implements UserService {
 		Theater theater = optionalTheater.get();
 
 		// Screen dependency check
-		if (theater.getScreenCount() != 0) {
+		if (theater.getScreenCount() != null && theater.getScreenCount() != 0) {
 			attributes.addFlashAttribute("fail", "First Remove The Screens to Remove Theater");
 			return "redirect:/manage-theaters";
 		}
@@ -660,7 +661,7 @@ public class UserServiceImpl implements UserService {
 
 		screenRepository.save(screen);
 
-		theater.setScreenCount(theater.getScreenCount() + 1);
+		theater.setScreenCount((theater.getScreenCount() != null ? theater.getScreenCount() : 0) + 1);
 		theaterRepository.save(theater);
 
 		attributes.addFlashAttribute("pass", "Screen Added Success");
@@ -699,7 +700,7 @@ public class UserServiceImpl implements UserService {
 		seatRepository.deleteAll(seats);
 
 		// Update theater screen count
-		theater.setScreenCount(theater.getScreenCount() - 1);
+		theater.setScreenCount((theater.getScreenCount() != null ? theater.getScreenCount() : 1) - 1);
 		theaterRepository.save(theater);
 
 		screenRepository.delete(screen);
@@ -1311,8 +1312,10 @@ public class UserServiceImpl implements UserService {
 
 		Show show = optionalShow.get();
 
-		// Group show seats by row (preserves UI order)
+		// Group show seats by row (preserves UI order), sorted by column within each row
 		Map<String, List<ShowSeat>> seatsByRow = show.getSeats().stream()
+				.sorted(Comparator.comparing((ShowSeat s) -> s.getSeat().getSeatRow())
+						.thenComparingInt(s -> s.getSeat().getSeatColumn()))
 				.collect(Collectors.groupingBy(s -> s.getSeat().getSeatRow(), LinkedHashMap::new, Collectors.toList()));
 
 		map.put("seatsByRow", seatsByRow);
