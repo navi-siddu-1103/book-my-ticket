@@ -212,12 +212,21 @@ body {
 
 	<div class="container">
 
+		<!-- Flash Alerts -->
+		<div th:if="${fail}" class="alert alert-danger mb-4" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; border-radius: 10px; font-weight: 600; padding: 12px 16px;">
+			<span th:text="${fail}"></span>
+		</div>
+		<div th:if="${pass}" class="alert alert-success mb-4" style="background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; color: #86efac; border-radius: 10px; font-weight: 600; padding: 12px 16px;">
+			<span th:text="${pass}"></span>
+		</div>
+
 		<div class="screen">🎬 SCREEN THIS SIDE 🎬</div>
 
 		<form id="bookingForm" action="/confirm-booking" method="post"
 			onsubmit="return prepareSeats()">
 
 			<input type="hidden" name="showId" th:value="${showId}">
+			<input type="hidden" name="seatIds" id="seatIdsFallback" value="">
 
 			<!-- Seat grid scroll wrapper -->
 			<div class="seat-grid-scroll">
@@ -276,15 +285,18 @@ function prepareSeats() {
 		return false;
 	}
 
+	const seatIdList = Array.from(selected).map(seat => seat.dataset.id).filter(id => id);
+	document.getElementById('seatIdsFallback').value = seatIdList.join(',');
+
 	// Remove any previously added dynamic inputs
 	document.querySelectorAll('.dynamic-seat-input').forEach(e => e.remove());
 
 	const form = document.getElementById('bookingForm');
-	selected.forEach(seat => {
+	seatIdList.forEach(id => {
 		const input = document.createElement('input');
 		input.type = 'hidden';
 		input.name = 'seatIds';
-		input.value = seat.dataset.id;
+		input.value = id;
 		input.className = 'dynamic-seat-input';
 		form.appendChild(input);
 	});

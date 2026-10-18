@@ -2,6 +2,8 @@ package com.jsp.book.controller;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -295,8 +297,25 @@ public class UserController {
 	}
 
 	@PostMapping("/confirm-booking")
-	public String confirmBooking(@RequestParam Long showId, @RequestParam Long[] seatIds, HttpSession session,
-			ModelMap model, RedirectAttributes attributes) throws RazorpayException {
+	public String confirmBooking(@RequestParam Long showId,
+			@RequestParam(name = "seatIds", required = false) String[] rawSeatIds,
+			HttpSession session, ModelMap model, RedirectAttributes attributes) throws RazorpayException {
+		List<Long> idList = new ArrayList<>();
+		if (rawSeatIds != null) {
+			for (String item : rawSeatIds) {
+				if (item != null && !item.trim().isEmpty()) {
+					for (String part : item.split(",")) {
+						String trimmed = part.trim();
+						if (!trimmed.isEmpty()) {
+							try {
+								idList.add(Long.parseLong(trimmed));
+							} catch (NumberFormatException ignored) {}
+						}
+					}
+				}
+			}
+		}
+		Long[] seatIds = idList.toArray(new Long[0]);
 		return userService.confirmBooking(showId, seatIds, session, model, attributes);
 	}
 

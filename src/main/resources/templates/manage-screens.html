@@ -208,10 +208,10 @@ body {
 	background: rgba(100, 150, 255, .08);
 }
 
-.table tbody td .screen-name {
+.table tbody td .screen-name, .screen-name {
 	font-weight: 700;
 	font-size: 1.05rem;
-	color: #black;
+	color: #ffffff !important;
 }
 
 .screen-type {
@@ -498,7 +498,7 @@ body {
 				<tbody>
 					<tr th:each="screen : ${screens}">
 						<td>
-							<span class="screen-name" th:text="${screen.name}">Screen 1</span>
+							<span class="screen-name" style="color: #ffffff !important;" th:text="${screen.name}">Screen 1</span>
 						</td>
 						<td>
 							<span class="screen-type" th:text="${screen.type}">2D</span>

@@ -82,12 +82,13 @@ body {
 
 /* Shows label */
 .shows-label {
-	color: var(--text-muted);
-	font-weight: 600;
-	font-size: 0.9rem;
-	margin-right: 6px;
+	color: #ffffff !important;
+	font-weight: 700;
+	font-size: 1.05rem;
+	margin-right: 10px;
 	display: inline-block;
 	vertical-align: middle;
+	letter-spacing: 0.5px;
 }
 
 /* Animation */
@@ -165,7 +166,7 @@ body {
 				</div>
 
 				<div>
-					<span class="shows-label">Shows:</span> <span
+					<span class="shows-label" style="color: #ffffff !important; font-weight: 700; font-size: 1.05rem;">Shows:</span> <span
 						th:if="${theaters.get(theater).isEmpty()}" class="no-shows">
 						No shows available </span> <a th:each="show : ${theaters.get(theater)}"
 						th:href="'/show-seats/' + ${show.id}" class="show-time"
