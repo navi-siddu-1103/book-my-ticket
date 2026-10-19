@@ -80,19 +80,42 @@ body {
 	font-style: italic;
 }
 
+/* Shows label */
+.shows-label {
+	color: #ffffff !important;
+	font-weight: 700;
+	font-size: 1.05rem;
+	margin-right: 10px;
+	display: inline-block;
+	vertical-align: middle;
+	letter-spacing: 0.5px;
+}
+
 /* Animation */
-@
-keyframes fadeInUp {from { opacity:0;
-	transform: translateY(20px);
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
-to {
-	opacity: 1;
-	transform: translateY(0);
+/* Back */
+.back-btn {
+	color: var(--text-muted);
+	text-decoration: none;
+	font-weight: 600;
+	transition: color 0.2s ease;
 }
 
+.back-btn:hover {
+	color: var(--accent);
 }
-@media ( max-width : 768px) {
+
+@media (max-width: 768px) {
 	.theater-name {
 		font-size: 1.3rem;
 	}
@@ -101,12 +124,35 @@ to {
 		font-size: 0.85rem;
 	}
 }
+
+@media (max-width: 576px) {
+	body {
+		padding: 20px 12px;
+	}
+	.theater-card {
+		padding: 16px 14px;
+		margin-bottom: 16px;
+		border-radius: 14px;
+	}
+	.theater-name {
+		font-size: 1.15rem;
+		margin-bottom: 10px;
+	}
+	.show-time {
+		padding: 6px 10px;
+		font-size: 0.8rem;
+		margin: 3px;
+		border-radius: 8px;
+	}
+}
 </style>
 </head>
 
 <body>
 
 	<div class="container">
+
+		<a href="/" class="back-btn mb-3 d-inline-block">← Back to Movies</a>
 
 		<h2 class="fw-bold mb-4 text-center">🎭 Select Theater & Show</h2>
 
@@ -120,7 +166,7 @@ to {
 				</div>
 
 				<div>
-					<span class="text-muted me-2">Shows:</span> <span
+					<span class="shows-label" style="color: #ffffff !important; font-weight: 700; font-size: 1.05rem;">Shows:</span> <span
 						th:if="${theaters.get(theater).isEmpty()}" class="no-shows">
 						No shows available </span> <a th:each="show : ${theaters.get(theater)}"
 						th:href="'/show-seats/' + ${show.id}" class="show-time"

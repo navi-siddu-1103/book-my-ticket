@@ -2,6 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Verify OTP | BookMyTicket</title>
 
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -32,6 +33,7 @@ body {
 	align-items: center;
 	justify-content: center;
 	color: var(--text-main);
+	padding: 20px 15px;
 }
 
 /* ===== CARD ===== */
@@ -133,14 +135,14 @@ body {
 }
 
 .toastify {
-	min-width: 300px;
+	max-width: min(330px, calc(100vw - 40px));
 	border-radius: 12px;
-	padding: 14px 18px;
+	padding: 10px 14px;
 	color: white;
 	font-weight: 600;
 	display: flex;
 	align-items: center;
-	gap: 12px;
+	gap: 8px;
 	box-shadow: 0 15px 40px rgba(0, 0, 0, .6);
 	animation: toastIn .4s ease forwards;
 }
@@ -154,13 +156,13 @@ body {
 }
 
 .toastify-close {
-	width: 26px;
-	height: 26px;
+	width: 22px;
+	height: 22px;
 	border-radius: 50%;
 	background: rgba(255, 255, 255, .25);
 	border: none;
 	color: white;
-	font-size: 1.1rem;
+	font-size: .95rem;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
@@ -210,9 +212,24 @@ to {
 }
 
 }
-@media ( max-width :480px) {
+@media (max-width: 576px) {
+	body {
+		padding: 15px 12px;
+	}
 	.otp-box {
-		padding: 35px
+		padding: 28px 18px;
+		border-radius: 14px;
+	}
+	.otp-box h3 {
+		font-size: 1.55rem;
+	}
+	.toastify-container {
+		top: 15px;
+		right: 15px;
+		left: 15px;
+	}
+	.toastify {
+		max-width: 100%;
 	}
 }
 </style>
@@ -234,6 +251,13 @@ to {
 	<div class="otp-box">
 		<h3>Verify OTP</h3>
 		<p>Enter the 6-digit OTP sent to your email</p>
+
+		<div th:if="${fail}" class="alert alert-warning py-2 px-3 mb-3 text-start" style="background: rgba(234, 179, 8, 0.15); border: 1px solid #eab308; border-radius: 10px; font-size: 0.85rem; color: #fef08a;">
+			<span th:text="${fail}"></span>
+		</div>
+		<div th:if="${pass}" class="alert alert-success py-2 px-3 mb-3 text-start" style="background: rgba(34, 197, 94, 0.15); border: 1px solid #22c55e; border-radius: 10px; font-size: 0.85rem; color: #86efac;">
+			<span th:text="${pass}"></span>
+		</div>
 
 		<form action="/otp" method="post">
 			<input type="hidden" name="email" th:value="${email}">
@@ -271,7 +295,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 				t.style.animation='toastOut .3s ease forwards';
 				setTimeout(()=>t.remove(),300);
 			}
-		},3500);
+		},7000);
 	});
 });
 </script>

@@ -5,6 +5,8 @@ import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,9 +58,11 @@ import com.razorpay.RazorpayException;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
 
 	/* ---------- Repositories ---------- */
@@ -108,12 +112,21 @@ public class UserServiceImpl implements UserService {
 		// OTP generation & persistence
 		int otp = secureRandom.nextInt(100000, 1_000_000);
 
-		emailHelper.sendOtp(otp, userDto.getName(), userDto.getEmail());
+		boolean emailSent = emailHelper.sendOtp(otp, userDto.getName(), userDto.getEmail());
 		redisService.saveUserDto(userDto.getEmail(), userDto);
 		redisService.saveOtp(userDto.getEmail(), otp);
 
-		attributes.addFlashAttribute("pass", "Otp Sent Success");
 		attributes.addFlashAttribute("email", userDto.getEmail());
+
+		if (emailSent) {
+			attributes.addFlashAttribute("pass", "OTP sent successfully to " + userDto.getEmail());
+		} else {
+			log.warn("==================================================================");
+			log.warn("⚠️ SMTP blocked by Render Free Tier (outbound ports 25/465/587 disabled).");
+			log.warn("🔑 REGISTRATION OTP for {}: {}", userDto.getEmail(), otp);
+			log.warn("==================================================================");
+			attributes.addFlashAttribute("fail", "Render Free Tier blocks SMTP. For testing, your OTP is: " + otp);
+		}
 
 		return "redirect:/otp";
 	}
@@ -208,11 +221,20 @@ public class UserServiceImpl implements UserService {
 
 		int otp = secureRandom.nextInt(100000, 1_000_000);
 
-		emailHelper.sendOtp(otp, userDto.getName(), userDto.getEmail());
+		boolean emailSent = emailHelper.sendOtp(otp, userDto.getName(), userDto.getEmail());
 		redisService.saveOtp(userDto.getEmail(), otp);
 
-		attributes.addFlashAttribute("pass", "Otp Re-Sent Success");
 		attributes.addFlashAttribute("email", userDto.getEmail());
+
+		if (emailSent) {
+			attributes.addFlashAttribute("pass", "OTP re-sent successfully to " + userDto.getEmail());
+		} else {
+			log.warn("==================================================================");
+			log.warn("⚠️ SMTP blocked by Render Free Tier (outbound ports 25/465/587 disabled).");
+			log.warn("🔑 RESENT OTP for {}: {}", userDto.getEmail(), otp);
+			log.warn("==================================================================");
+			attributes.addFlashAttribute("fail", "Render Free Tier blocks SMTP. For testing, your OTP is: " + otp);
+		}
 
 		return "redirect:/otp";
 	}
@@ -232,11 +254,20 @@ public class UserServiceImpl implements UserService {
 
 		int otp = secureRandom.nextInt(100000, 1_000_000);
 
-		emailHelper.sendOtp(otp, user.getName(), email);
+		boolean emailSent = emailHelper.sendOtp(otp, user.getName(), email);
 		redisService.saveOtp(email, otp);
 
-		attributes.addFlashAttribute("pass", "Sent Success");
 		attributes.addFlashAttribute("email", email);
+
+		if (emailSent) {
+			attributes.addFlashAttribute("pass", "Password reset OTP sent to " + email);
+		} else {
+			log.warn("==================================================================");
+			log.warn("⚠️ SMTP blocked by Render Free Tier (outbound ports 25/465/587 disabled).");
+			log.warn("🔑 RESET PASSWORD OTP for {}: {}", email, otp);
+			log.warn("==================================================================");
+			attributes.addFlashAttribute("fail", "Render Free Tier blocks SMTP. For testing, your OTP is: " + otp);
+		}
 
 		return "redirect:/reset-password";
 	}
@@ -375,10 +406,17 @@ public class UserServiceImpl implements UserService {
 			attributes.addFlashAttribute("fail", "Invalid Session");
 			return "redirect:/login";
 		}
-
+		
 		List<Theater> theaters = theaterRepository.findAll();
+		for (Theater t : theaters) {
+        int actual = (int) screenRepository.countByTheater(t);
+	        if (t.getScreenCount() == null || t.getScreenCount() != actual) {
+	            t.setScreenCount(actual);
+	        }
+    	}
+		theaterRepository.saveAll(theaters);
 		map.put("theaters", theaters);
-
+		
 		return "manage-theaters.html";
 	}
 
@@ -459,7 +497,7 @@ public class UserServiceImpl implements UserService {
 		Theater theater = optionalTheater.get();
 
 		// Screen dependency check
-		if (theater.getScreenCount() != 0) {
+		if (theater.getScreenCount() != null && theater.getScreenCount() != 0) {
 			attributes.addFlashAttribute("fail", "First Remove The Screens to Remove Theater");
 			return "redirect:/manage-theaters";
 		}
@@ -629,7 +667,7 @@ public class UserServiceImpl implements UserService {
 
 		screenRepository.save(screen);
 
-		theater.setScreenCount(theater.getScreenCount() + 1);
+		theater.setScreenCount((theater.getScreenCount() != null ? theater.getScreenCount() : 0) + 1);
 		theaterRepository.save(theater);
 
 		attributes.addFlashAttribute("pass", "Screen Added Success");
@@ -668,7 +706,9 @@ public class UserServiceImpl implements UserService {
 		seatRepository.deleteAll(seats);
 
 		// Update theater screen count
-		theater.setScreenCount(theater.getScreenCount() - 1);
+		// theater.setScreenCount((theater.getScreenCount() != null ? theater.getScreenCount() : 1) - 1);
+		int screenCount = theater.getScreenCount() == null ? 0 : theater.getScreenCount();
+		theater.setScreenCount(Math.max(0, screenCount - 1));
 		theaterRepository.save(theater);
 
 		screenRepository.delete(screen);
@@ -806,6 +846,12 @@ public class UserServiceImpl implements UserService {
 
 		Screen screen = screenRepository.findById(screenId).orElseThrow();
 
+		// Remove existing seats for this screen to prevent duplicate seats
+		List<Seat> existingSeats = seatRepository.findByScreenOrderBySeatRowAscSeatColumnAsc(screen);
+		if (existingSeats != null && !existingSeats.isEmpty()) {
+			seatRepository.deleteAll(existingSeats);
+		}
+
 		for (SeatRowDto row : form.getRows()) {
 			for (int i = 1; i <= row.getTotalSeats(); i++) {
 
@@ -835,7 +881,7 @@ public class UserServiceImpl implements UserService {
 			return "redirect:/login";
 		}
 
-		List<Movie> movies = movieRepository.findAll();
+		List<Movie> movies = movieRepository.findAllByOrderByReleaseDateDesc();
 		map.put("movies", movies);
 
 		return "manage-movies.html";
@@ -867,12 +913,6 @@ public class UserServiceImpl implements UserService {
 			return "redirect:/login";
 		}
 
-		// Duplicate movie check
-		if (movieRepository.existsByNameAndReleaseDate(movieDto.getName(), movieDto.getReleaseDate())) {
-
-			result.rejectValue("name", "error.name", "* Movie Already Exists");
-		}
-
 		// Image validation
 		MultipartFile image = movieDto.getImage();
 		boolean hasImageFile = image != null && !image.isEmpty();
@@ -884,16 +924,120 @@ public class UserServiceImpl implements UserService {
 		if (result.hasErrors()) {
 			return "add-movie.html";
 		}
-		
+
+		// Duplicate movie check (safe after validation ensures name and releaseDate are non-null)
+		try {
+			if (movieDto.getName() != null && movieDto.getReleaseDate() != null
+					&& movieRepository.existsByNameAndReleaseDate(movieDto.getName(), movieDto.getReleaseDate())) {
+				result.rejectValue("name", "error.name", "* Movie Already Exists");
+				return "add-movie.html";
+			}
+		} catch (Exception ex) {
+			System.err.println("Error checking duplicate movie: " + ex.getMessage());
+		}
+
 		String imageLink = cloudinaryHelper.generateImageLink(image);
+		if (cloudinaryHelper.isFallbackImage(imageLink)) {
+			result.rejectValue("image", "error.image", "* Image upload failed, try another file");
+			return "add-movie.html";
+		}
+
+		String trailerLink = movieDto.getTrailerLink() != null ? movieDto.getTrailerLink().trim() : "";
 
 		Movie movie = new Movie(null, movieDto.getName(), movieDto.getLanguages(), movieDto.getGenre(),
 				movieDto.getDuration(), imageLink,
-				movieDto.getTrailerLink(), movieDto.getDescription(), movieDto.getReleaseDate(), movieDto.getCast());
+				trailerLink, movieDto.getDescription(), movieDto.getReleaseDate(), movieDto.getCast());
+
+		try {
+			movieRepository.save(movie);
+		} catch (Exception ex) {
+			System.err.println("Error saving movie: " + ex.getMessage());
+			ex.printStackTrace();
+			attributes.addFlashAttribute("fail", "Database error saving movie: " + ex.getMessage());
+			return "redirect:/manage-movies";
+		}
+
+		attributes.addFlashAttribute("pass", "Movie Added Success");
+		return "redirect:/manage-movies";
+	}
+
+	@Override
+	public String loadEditMovie(Long id, HttpSession session, RedirectAttributes attributes, ModelMap map) {
+
+		User loggedInUser = getUserFromSession(session);
+
+		if (loggedInUser == null || !"ADMIN".equals(loggedInUser.getRole())) {
+			attributes.addFlashAttribute("fail", "Invalid Session");
+			return "redirect:/login";
+		}
+
+		Optional<Movie> optionalMovie = movieRepository.findById(id);
+
+		if (optionalMovie.isEmpty()) {
+			attributes.addFlashAttribute("fail", "Invalid Movie");
+			return "redirect:/manage-movies";
+		}
+
+		Movie movie = optionalMovie.get();
+
+		MovieDto movieDto = new MovieDto(movie.getName(), movie.getLanguages(), movie.getGenre(),
+				movie.getDuration(), null, movie.getImageLink(), movie.getTrailerLink(),
+				movie.getDescription(), movie.getReleaseDate(), movie.getCast());
+
+		map.put("id", movie.getId());
+		map.put("currentImageLink", movie.getImageLink());
+		map.put("movieDto", movieDto);
+
+		return "edit-movie.html";
+	}
+
+	@Override
+	public String editMovie(Long id, @Valid MovieDto movieDto, BindingResult result,
+			RedirectAttributes attributes, HttpSession session, ModelMap map) {
+
+		User loggedInUser = getUserFromSession(session);
+
+		if (loggedInUser == null || !"ADMIN".equals(loggedInUser.getRole())) {
+			attributes.addFlashAttribute("fail", "Invalid Session");
+			return "redirect:/login";
+		}
+
+		Optional<Movie> optionalMovie = movieRepository.findById(id);
+
+		if (optionalMovie.isEmpty()) {
+			attributes.addFlashAttribute("fail", "Invalid Movie");
+			return "redirect:/manage-movies";
+		}
+
+		if (result.hasErrors()) {
+			map.put("id", id);
+			map.put("currentImageLink", optionalMovie.get().getImageLink());
+			return "edit-movie.html";
+		}
+
+		Movie movie = optionalMovie.get();
+		movie.setName(movieDto.getName());
+		movie.setLanguages(movieDto.getLanguages());
+		movie.setGenre(movieDto.getGenre());
+		movie.setDuration(movieDto.getDuration());
+		movie.setTrailerLink(movieDto.getTrailerLink());
+		movie.setDescription(movieDto.getDescription());
+		movie.setReleaseDate(movieDto.getReleaseDate());
+		movie.setCast(movieDto.getCast());
+
+		MultipartFile image = movieDto.getImage();
+		if (image != null && !image.isEmpty()) {
+			String uploaded = cloudinaryHelper.generateImageLink(image);
+			if (!cloudinaryHelper.isFallbackImage(uploaded)) {
+				movie.setImageLink(uploaded);
+			}
+		} else if (movieDto.getImageUrl() != null && !movieDto.getImageUrl().trim().isEmpty()) {
+			movie.setImageLink(movieDto.getImageUrl().trim());
+		}
 
 		movieRepository.save(movie);
 
-		attributes.addFlashAttribute("pass", "Movie Added Success");
+		attributes.addFlashAttribute("pass", "Movie Updated Successfully");
 		return "redirect:/manage-movies";
 	}
 	
@@ -1165,9 +1309,33 @@ public class UserServiceImpl implements UserService {
 
 		Show show = optionalShow.get();
 
-		// Group show seats by row (preserves UI order)
-		Map<String, List<ShowSeat>> seatsByRow = show.getSeats().stream()
-				.collect(Collectors.groupingBy(s -> s.getSeat().getSeatRow(), LinkedHashMap::new, Collectors.toList()));
+		// Deduplicate seats by row and column (so duplicate seats in DB are not repeated)
+		Map<String, Map<Integer, ShowSeat>> rowColumnMap = new LinkedHashMap<>();
+
+		// Sort all seats by row name, then column ascending (1, 2, 3...)
+		List<ShowSeat> allSeats = new ArrayList<>(show.getSeats());
+		allSeats.sort(Comparator.comparing((ShowSeat s) -> s.getSeat() != null && s.getSeat().getSeatRow() != null ? s.getSeat().getSeatRow() : "")
+				.thenComparingInt(s -> s.getSeat() != null && s.getSeat().getSeatColumn() != null ? s.getSeat().getSeatColumn() : 0));
+
+		for (ShowSeat ss : allSeats) {
+			if (ss.getSeat() != null && ss.getSeat().getSeatRow() != null && ss.getSeat().getSeatColumn() != null) {
+				String row = ss.getSeat().getSeatRow();
+				Integer col = ss.getSeat().getSeatColumn();
+				rowColumnMap.putIfAbsent(row, new LinkedHashMap<>());
+				Map<Integer, ShowSeat> colMap = rowColumnMap.get(row);
+				// Prioritize booked seat if duplicate exists
+				if (!colMap.containsKey(col) || ss.isBooked()) {
+					colMap.put(col, ss);
+				}
+			}
+		}
+
+		Map<String, List<ShowSeat>> seatsByRow = new LinkedHashMap<>();
+		for (Map.Entry<String, Map<Integer, ShowSeat>> entry : rowColumnMap.entrySet()) {
+			List<ShowSeat> rowSeats = new ArrayList<>(entry.getValue().values());
+			rowSeats.sort(Comparator.comparingInt(s -> s.getSeat().getSeatColumn()));
+			seatsByRow.put(entry.getKey(), rowSeats);
+		}
 
 		map.put("seatsByRow", seatsByRow);
 		map.put("showId", id);
@@ -1202,24 +1370,36 @@ public class UserServiceImpl implements UserService {
 
 		Show show = optionalShow.get();
 
-		// Selected seat IDs
-		Set<Long> selectedSeatIds = Set.of(seatIds);
+		// Selected seat IDs using HashSet to eliminate any duplicate IDs
+		Set<Long> selectedSeatIds = new HashSet<>(Arrays.asList(seatIds));
 
 		// Filter selected seats
 		List<ShowSeat> selectedSeats = show.getSeats().stream().filter(seat -> selectedSeatIds.contains(seat.getId()))
 				.toList();
 
+		if (selectedSeats.isEmpty()) {
+			attributes.addFlashAttribute("fail", "Selected seats are invalid or unavailable. Please select again.");
+			return "redirect:/show-seats/" + showId;
+		}
+
 		double amount = show.getTicketPrice() * selectedSeats.size();
 
 		// Razorpay order
-		RazorpayClient razorpay = new RazorpayClient(RAZORPAY_KEY, RAZORPAY_SECRET);
+		String orderId;
+		try {
+			RazorpayClient razorpay = new RazorpayClient(RAZORPAY_KEY, RAZORPAY_SECRET);
 
-		JSONObject orderRequest = new JSONObject();
-		orderRequest.put("amount", amount * 100);
-		orderRequest.put("currency", "INR");
+			JSONObject orderRequest = new JSONObject();
+			orderRequest.put("amount", amount * 100);
+			orderRequest.put("currency", "INR");
 
-		Order order = razorpay.orders.create(orderRequest);
-		String orderId = order.get("id");
+			Order order = razorpay.orders.create(orderRequest);
+			orderId = order.get("id");
+		} catch (Exception ex) {
+			log.error("Failed to create Razorpay order: {}", ex.getMessage(), ex);
+			// Fallback mock order ID so user can proceed without getting stuck
+			orderId = "order_mock_" + System.currentTimeMillis();
+		}
 
 		// UI attributes
 		map.put("key", RAZORPAY_KEY);

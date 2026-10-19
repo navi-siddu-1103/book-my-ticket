@@ -30,5 +30,6 @@ public class Theater {
 	@Column(nullable = false)
 	private String imageLocation;
 
-	private Integer screenCount;
+	@Column(nullable = false, columnDefinition = "int default 0")
+	private Integer screenCount = 0;
 }

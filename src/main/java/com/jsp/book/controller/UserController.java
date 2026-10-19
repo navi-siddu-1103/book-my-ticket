@@ -2,6 +2,8 @@ package com.jsp.book.controller;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -237,6 +239,18 @@ public class UserController {
 		return userService.addMovie(movieDto, result, attributes, session);
 	}
 
+	@GetMapping("/edit-movie/{id}")
+	public String loadEditMovie(@PathVariable Long id, HttpSession session, RedirectAttributes attributes,
+			ModelMap model) {
+		return userService.loadEditMovie(id, session, attributes, model);
+	}
+
+	@PostMapping("/edit-movie/{id}")
+	public String editMovie(@PathVariable Long id, @Valid MovieDto movieDto, BindingResult result,
+			RedirectAttributes attributes, HttpSession session, ModelMap model) {
+		return userService.editMovie(id, movieDto, result, attributes, session, model);
+	}
+
 	@GetMapping("/delete-movie/{id}")
 	public String deleteMovie(@PathVariable Long id, HttpSession session, RedirectAttributes attributes) {
 		return userService.deleteMovie(id, session, attributes);
@@ -283,8 +297,25 @@ public class UserController {
 	}
 
 	@PostMapping("/confirm-booking")
-	public String confirmBooking(@RequestParam Long showId, @RequestParam Long[] seatIds, HttpSession session,
-			ModelMap model, RedirectAttributes attributes) throws RazorpayException {
+	public String confirmBooking(@RequestParam Long showId,
+			@RequestParam(name = "seatIds", required = false) String[] rawSeatIds,
+			HttpSession session, ModelMap model, RedirectAttributes attributes) throws RazorpayException {
+		List<Long> idList = new ArrayList<>();
+		if (rawSeatIds != null) {
+			for (String item : rawSeatIds) {
+				if (item != null && !item.trim().isEmpty()) {
+					for (String part : item.split(",")) {
+						String trimmed = part.trim();
+						if (!trimmed.isEmpty()) {
+							try {
+								idList.add(Long.parseLong(trimmed));
+							} catch (NumberFormatException ignored) {}
+						}
+					}
+				}
+			}
+		}
+		Long[] seatIds = idList.toArray(new Long[0]);
 		return userService.confirmBooking(showId, seatIds, session, model, attributes);
 	}
 

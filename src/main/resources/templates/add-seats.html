@@ -2,6 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Add Seats - BookMyTicket Admin</title>
 
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -36,7 +37,7 @@ body {
 	background: radial-gradient(circle at top, #1e293b, var(--bg-main));
 	min-height: 100vh;
 	color: var(--text-main);
-	padding: 30px;
+	padding: 20px 15px;
 }
 
 /* Container */
@@ -198,10 +199,21 @@ to {
 }
 
 }
-@media ( max-width : 768px) {
+@media (max-width: 768px) {
+	.card-body {
+		padding: 16px;
+	}
 	.row-block {
 		flex-direction: column;
 		align-items: stretch;
+	}
+	.footer-actions {
+		flex-direction: column-reverse;
+		gap: 10px;
+	}
+	.btn-cancel, .btn-save, .btn-add-row {
+		width: 100%;
+		text-align: center;
 	}
 }
 </style>

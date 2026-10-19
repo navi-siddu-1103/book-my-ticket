@@ -7,9 +7,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class MovieDto {
 
 	@NotBlank(message = "* It is Required")
@@ -25,8 +29,7 @@ public class MovieDto {
 	private LocalTime duration;
 
 	private MultipartFile image;
-
-	@NotBlank(message = "* It is Required")
+	private String imageUrl;
 	private String trailerLink;
 
 	@NotBlank(message = "* It is Required")

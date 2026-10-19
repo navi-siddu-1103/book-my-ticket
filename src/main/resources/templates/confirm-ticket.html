@@ -29,12 +29,43 @@
 	box-sizing: border-box;
 }
 
+/* ── Navbar ──────────────────────────── */
+.app-nav {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 999;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 24px;
+	height: 64px;
+	background: rgba(15, 23, 42, 0.85);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	border-bottom: 1px solid var(--border-soft);
+}
+
+.app-nav .brand {
+	font-weight: 800;
+	font-size: 1.15rem;
+	color: var(--text-main);
+	text-decoration: none;
+	letter-spacing: 0.3px;
+}
+
+.app-nav .brand:hover {
+	color: #ff6b6b;
+}
+
+/* ── Body ────────────────────────────── */
 body {
 	font-family: "Poppins", sans-serif;
 	background: radial-gradient(circle at top, #1e293b, var(--bg-main));
 	min-height: 100vh;
 	color: var(--text-main);
-	padding: 30px 15px;
+	padding: 80px 15px 30px; /* 80px top clears fixed nav */
 }
 
 /* Container */
@@ -129,18 +160,29 @@ body {
 	box-shadow: 0 18px 45px rgba(231, 76, 60, 0.6);
 }
 
+/* Action bar */
+.action-bar {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	gap: 10px;
+	margin-top: 1.5rem;
+}
+
 /* Animation */
-@keyframes fadeInUp {from { opacity:0;
-	transform: translateY(20px);
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
-to {
-	opacity: 1;
-	transform: translateY(0);
-}
-
-}
-@media ( max-width : 768px) {
+/* ── Tablet ─────────────────────────── */
+@media (max-width: 768px) {
 	.card {
 		padding: 25px;
 	}
@@ -149,10 +191,38 @@ to {
 		gap: 4px;
 	}
 }
+
+/* ── Mobile ≤576px ──────────────────── */
+@media (max-width: 576px) {
+	body {
+		padding-top: 80px;
+	}
+
+	.card {
+		padding: 20px;
+	}
+
+	.action-bar {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.btn-cancel,
+	.btn-confirm {
+		width: 100%;
+		margin: 0 !important;
+		text-align: center;
+	}
+}
 </style>
 </head>
 
 <body>
+
+	<!-- Navbar -->
+	<nav class="app-nav">
+		<a href="/" class="brand">🎬 BookMyTicket</a>
+	</nav>
 
 	<div class="container">
 
@@ -205,10 +275,10 @@ to {
 			<hr>
 
 			<!-- ACTIONS -->
-			<div class="text-end mt-4">
+			<div class="action-bar">
 				<a href="/" class="btn btn-cancel">Cancel</a>
-				<button class="btn btn-confirm ms-2" id="rzp-button1">
-					Confirm & Pay</button>
+				<button class="btn btn-confirm" id="rzp-button1">
+					Confirm &amp; Pay</button>
 			</div>
 
 		</div>

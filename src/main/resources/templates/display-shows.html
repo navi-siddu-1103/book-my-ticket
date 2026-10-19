@@ -139,12 +139,25 @@ to {
 }
 
 }
-@media ( max-width : 768px) {
+@media (max-width: 768px) {
 	.movie-poster {
-		height: 340px;
+		height: 320px;
 	}
 	.movie-title {
-		font-size: 1.7rem;
+		font-size: 1.6rem;
+	}
+}
+
+@media (max-width: 576px) {
+	.movie-poster {
+		height: 240px;
+	}
+	.movie-title {
+		font-size: 1.35rem;
+	}
+	.date-btn {
+		padding: 9px 14px;
+		font-size: 0.85rem;
 	}
 }
 </style>
@@ -161,7 +174,8 @@ to {
 		<div class="row g-4 mb-5" th:if="${movie != null}">
 			<div class="col-md-4">
 				<div class="movie-card">
-					<img th:src="${movie.imageLink}" class="movie-poster">
+					<img th:src="${movie.imageLink}" class="movie-poster"
+						onerror="this.onerror=null;this.src='https://placehold.co/600x400/111827/94a3b8?text=No+Poster';">
 				</div>
 			</div>
 
