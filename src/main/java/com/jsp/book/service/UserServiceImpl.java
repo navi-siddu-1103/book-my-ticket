@@ -408,10 +408,17 @@ public class UserServiceImpl implements UserService {
 			attributes.addFlashAttribute("fail", "Invalid Session");
 			return "redirect:/login";
 		}
-
+		
 		List<Theater> theaters = theaterRepository.findAll();
+		for (Theater t : theaters) {
+        int actual = (int) screenRepository.countByTheater(t);
+	        if (t.getScreenCount() == null || t.getScreenCount() != actual) {
+	            t.setScreenCount(actual);
+	        }
+    	}
+		theaterRepository.saveAll(theaters);
 		map.put("theaters", theaters);
-
+		
 		return "manage-theaters.html";
 	}
 
