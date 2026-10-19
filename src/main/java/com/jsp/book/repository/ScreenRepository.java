@@ -10,4 +10,5 @@ import com.jsp.book.entity.Theater;
 public interface ScreenRepository extends JpaRepository<Screen, Long> {
 	List<Screen> findByTheater(Theater theater);
 	boolean existsByNameAndTheater(String name, Theater theater);
+	long countByTheaterId(Long theaterId);
 }
