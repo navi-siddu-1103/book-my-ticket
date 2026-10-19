@@ -1,7 +1,6 @@
 package com.jsp.book.service;
 
 import java.io.IOException;
-import java.net.URI;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -18,7 +17,6 @@ import java.util.stream.Collectors;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -918,10 +916,9 @@ public class UserServiceImpl implements UserService {
 		// Image validation
 		MultipartFile image = movieDto.getImage();
 		boolean hasImageFile = image != null && !image.isEmpty();
-		boolean hasImageUrl = movieDto.getImageUrl() != null && !movieDto.getImageUrl().trim().isEmpty();
 
-		if (!hasImageFile && !hasImageUrl) {
-			result.rejectValue("image", "error.image", "* Either an image file or an image URL is required");
+		if (!hasImageFile) {
+			result.rejectValue("image", "error.image", "* Image is Required");
 		}
 
 		if (result.hasErrors()) {
@@ -939,15 +936,10 @@ public class UserServiceImpl implements UserService {
 			System.err.println("Error checking duplicate movie: " + ex.getMessage());
 		}
 
-		String imageLink;
-		if (hasImageUrl) {
-			imageLink = movieDto.getImageUrl().trim();
-		} else {
-			imageLink = cloudinaryHelper.generateImageLink(image);
-			if (cloudinaryHelper.isFallbackImage(imageLink)) {
-				result.rejectValue("image", "error.image", "* Image upload failed. Please check Cloudinary setup or provide an Image URL.");
-				return "add-movie.html";
-			}
+		String imageLink = cloudinaryHelper.generateImageLink(image);
+		if (cloudinaryHelper.isFallbackImage(imageLink)) {
+			result.rejectValue("image", "error.image", "* Image upload failed, try another file");
+			return "add-movie.html";
 		}
 
 		String trailerLink = movieDto.getTrailerLink() != null ? movieDto.getTrailerLink().trim() : "";
@@ -1049,17 +1041,6 @@ public class UserServiceImpl implements UserService {
 		return "redirect:/manage-movies";
 	}
 	
-	private boolean isValidHttpUrl(String value) {
-		try {
-			URI uri = URI.create(value);
-			String scheme = uri.getScheme();
-			return ("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme))
-					&& StringUtils.hasText(uri.getHost());
-		} catch (Exception ex) {
-			return false;
-		}
-	}
-
 	@Override
 	public String manageShows(Long id, ModelMap map, RedirectAttributes attributes, HttpSession session) {
 
