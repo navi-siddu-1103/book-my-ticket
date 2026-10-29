@@ -195,7 +195,8 @@ body {
 	vertical-align: middle;
 	font-weight: 500;
 	white-space: nowrap;
-	background: transparent;
+	background: transparent !important;
+	box-shadow: none !important;
 	color: var(--text-main);
 }
 
@@ -498,7 +499,7 @@ body {
 				<tbody>
 					<tr th:each="screen : ${screens}">
 						<td>
-							<span class="screen-name" style="color: #28282B !important;" th:text="${screen.name}">Screen 1</span>
+							<span class="screen-name" th:text="${screen.name}">Screen 1</span>
 						</td>
 						<td>
 							<span class="screen-type" th:text="${screen.type}">2D</span>
