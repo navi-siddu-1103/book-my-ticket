@@ -315,7 +315,7 @@ body {
 					</div>
 
 					<div class="screen-count"
-						th:text="'Screens: '+${theater.screenCount}"></div>
+						th:text="'Screens: ' + ${theater.screenCount ?: 0}"></div>
 
 					<div class="card-actions">
 						<a th:href="'/edit-theater/'+${theater.id}"
