@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" data-bs-theme="dark" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -159,7 +159,7 @@ body {
 
 /* ===== TABLE ===== */
 .table-wrapper {
-	background: linear-gradient(180deg, #111827, #0b1220);
+	background: #111827;
 	border-radius: 18px;
 	border: 1px solid var(--border);
 	overflow-x: auto;
@@ -168,55 +168,62 @@ body {
 	margin-bottom: 30px;
 }
 
-.table {
-	color: var(--text-main);
+.table,
+.table-dark,
+.table-wrapper table {
+	--bs-table-bg: #111827 !important;
+	--bs-table-color: #ffffff !important;
+	--bs-table-border-color: #1f2937 !important;
+	background-color: #111827 !important;
+	color: #ffffff !important;
 	margin-bottom: 0;
 	min-width: 580px;
-	--bs-table-bg: #111827;
-	--bs-table-color: var(--text-main);
-	--bs-table-border-color: var(--border);
 }
 
-.table thead th {
-	background: #020617;
-	color: var(--text-muted);
+.table > :not(caption) > * > *,
+.table tbody td,
+.table tbody th {
+	background-color: #111827 !important;
+	box-shadow: none !important;
+	color: #ffffff !important;
+	border-color: #1f2937 !important;
+	padding: 1.1rem 1.2rem !important;
+	vertical-align: middle !important;
+}
+
+.table thead th,
+.table-wrapper table thead th {
+	background-color: #020617 !important;
+	color: #9ca3af !important;
 	font-weight: 700;
 	text-transform: uppercase;
 	font-size: .8rem;
 	letter-spacing: .5px;
-	border-bottom: 1px solid var(--border);
-	padding: 1.1rem 1.2rem;
+	border-bottom: 1px solid #1f2937 !important;
+	padding: 1.1rem 1.2rem !important;
+	box-shadow: none !important;
 	white-space: nowrap;
-}
-
-.table tbody td {
-	padding: 1.1rem 1.2rem;
-	border-color: var(--border);
-	vertical-align: middle;
-	font-weight: 500;
-	white-space: nowrap;
-	background: transparent;
-	color: var(--text-main);
 }
 
 .table tbody tr {
-	transition: .25s ease;
-	background: transparent;
+	background-color: #111827 !important;
+	transition: background-color .25s ease;
 }
 
-.table tbody tr:hover {
-	background: rgba(100, 150, 255, .08);
+.table tbody tr:hover td {
+	background-color: #1a2234 !important;
 }
 
-.table tbody td .screen-name, .screen-name {
-	font-weight: 700;
-	font-size: 1.05rem;
+.screen-name {
+	font-weight: 700 !important;
+	font-size: 1.05rem !important;
 	color: #ffffff !important;
+	display: inline-block;
 }
 
 .screen-type {
-	background: rgba(100, 150, 255, .15);
-	color: var(--accent);
+	background: rgba(100, 150, 255, .15) !important;
+	color: var(--accent) !important;
 	padding: .35rem .85rem;
 	border-radius: 999px;
 	font-size: .8rem;
@@ -487,7 +494,7 @@ body {
 
 		<!-- TABLE -->
 		<div th:if="${!screens.isEmpty()}" class="table-wrapper">
-			<table class="table">
+			<table class="table table-dark">
 				<thead>
 					<tr>
 						<th>Screen Name</th>
@@ -496,14 +503,14 @@ body {
 					</tr>
 				</thead>
 				<tbody>
-					<tr th:each="screen : ${screens}">
-						<td>
-							<span class="screen-name" style="color: #ffffff !important;" th:text="${screen.name}">Screen 1</span>
+					<tr th:each="screen : ${screens}" style="background-color: #111827 !important;">
+						<td style="background-color: #111827 !important; color: #ffffff !important; border-color: #1f2937 !important; vertical-align: middle;">
+							<span class="screen-name" style="color: #ffffff !important; font-weight: 700; font-size: 1.05rem;" th:text="${screen.name != null && !screen.name.isEmpty() ? screen.name : 'Screen'}">Screen 1</span>
 						</td>
-						<td>
+						<td style="background-color: #111827 !important; border-color: #1f2937 !important; vertical-align: middle;">
 							<span class="screen-type" th:text="${screen.type}">2D</span>
 						</td>
-						<td>
+						<td style="background-color: #111827 !important; border-color: #1f2937 !important; vertical-align: middle;">
 							<div class="action-cell">
 								<a th:href="'/edit-screen/'+${screen.id}" class="btn-action btn-action-edit">✏️ Edit</a>
 								<a th:href="'/manage-seats/'+${screen.id}" class="btn-action btn-action-seats">🪑 Seats</a>
