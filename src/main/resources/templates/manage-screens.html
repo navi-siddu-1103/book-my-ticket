@@ -504,8 +504,8 @@ body {
 				</thead>
 				<tbody>
 					<tr th:each="screen : ${screens}" style="background-color: #111827 !important;">
-						<td style="background-color: #111827 !important; color: #ffffff !important; border-color: #1f2937 !important; vertical-align: middle;">
-							<span class="screen-name" style="color: ##000000 !important; font-weight: 700; font-size: 1.05rem;" th:text="${screen.name != null && !screen.name.isEmpty() ? screen.name : 'Screen'}">Screen 1</span>
+						<td style="background-color: #111827 !important; color: #000000 !important; border-color: #1f2937 !important; vertical-align: middle;">
+							<span class="screen-name" style="color: #000000 !important; font-weight: 700; font-size: 1.05rem;" th:text="${screen.name != null && !screen.name.isEmpty() ? screen.name : 'Screen'}">Screen 1</span>
 						</td>
 						<td style="background-color: #111827 !important; border-color: #1f2937 !important; vertical-align: middle;">
 							<span class="screen-type" th:text="${screen.type}">2D</span>
